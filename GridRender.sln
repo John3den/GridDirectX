@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33414.496
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GridDirectX", "GridDirectX.csproj", "{964F708F-21D2-4FE6-BAF1-7554DB98688A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GridRender", "GridRender\GridRender.csproj", "{FA8234CD-BD08-4FB0-B94E-A49B843A5FB9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{964F708F-21D2-4FE6-BAF1-7554DB98688A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{964F708F-21D2-4FE6-BAF1-7554DB98688A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{964F708F-21D2-4FE6-BAF1-7554DB98688A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{964F708F-21D2-4FE6-BAF1-7554DB98688A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA8234CD-BD08-4FB0-B94E-A49B843A5FB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA8234CD-BD08-4FB0-B94E-A49B843A5FB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA8234CD-BD08-4FB0-B94E-A49B843A5FB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA8234CD-BD08-4FB0-B94E-A49B843A5FB9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {ACF975BC-5FA7-4C6F-9E74-CC51B37782C8}
+		SolutionGuid = {EB7F3503-FB72-4BC2-AF3E-BE14BE0ED649}
 	EndGlobalSection
 EndGlobal

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace GridDirectX.Properties
+namespace GridRender.Properties
 {
 
 
