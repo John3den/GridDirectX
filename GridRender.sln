@@ -5,6 +5,8 @@ VisualStudioVersion = 17.5.33414.496
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GridRender", "GridRender\GridRender.csproj", "{FA8234CD-BD08-4FB0-B94E-A49B843A5FB9}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Engine", "Engine\Engine.shproj", "{EB992B6F-C816-44B5-BC6B-8A568967C036}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,5 +23,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EB7F3503-FB72-4BC2-AF3E-BE14BE0ED649}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Engine\Engine.projitems*{eb992b6f-c816-44b5-bc6b-8a568967c036}*SharedItemsImports = 13
+		Engine\Engine.projitems*{fa8234cd-bd08-4fb0-b94e-a49b843a5fb9}*SharedItemsImports = 4
 	EndGlobalSection
 EndGlobal

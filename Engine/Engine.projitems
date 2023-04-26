@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>eb992b6f-c816-44b5-bc6b-8a568967c036</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Engine</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Grid\" />
+    <Folder Include="$(MSBuildThisFileDirectory)FileIO\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Math\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)fileio\GridReader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)fileio\PropertyReader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)grid\Cell.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)grid\Grid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)grid\Property.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)math\Vector3i.cs" />
+  </ItemGroup>
+</Project>
