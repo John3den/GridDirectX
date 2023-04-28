@@ -18,23 +18,67 @@ namespace Engine
 {
     public class Cell
     {
+        private const int N_OF_ATTRIBS = 3;
+        private const int N_OF_VERTICES = 36;
+
         public Buffer buffer;
-        public Vector4 vertCol = new Vector4(1,0,0,1);
-        public Vector4[] vertData = new Vector4[72];
+        public Vector4[] vertData = new Vector4[N_OF_VERTICES * N_OF_ATTRIBS];
         public bool active;
-        public Cell(Vector3[] pos, bool isActiveByDefault,Device device,float y,float property)
+        private Vector4[] localPositions = {
+        new Vector4(-1,-1,1,1.0f),
+        new Vector4(-1,1,1,1.0f),
+        new Vector4(1,-1,1,1.0f),
+        new Vector4(1,1,1,1.0f),
+        new Vector4(1,-1,1,1.0f),
+        new Vector4(-1,1,1,1.0f),
+
+        new Vector4(-1,-1,-1,1.0f),
+        new Vector4(1,-1,-1,1.0f),
+        new Vector4(-1,1,-1,1.0f),
+        new Vector4(1,1,-1,1.0f),
+        new Vector4(-1,1,-1,1.0f),
+        new Vector4(1,-1,-1,1.0f),
+
+        new Vector4(-1,1,1,1.0f),
+        new Vector4(-1,-1,1,1.0f),
+        new Vector4(-1,1,-1,1.0f),
+        new Vector4(-1,-1,-1,1.0f),
+        new Vector4(-1,1,-1,1.0f),
+        new Vector4(-1,-1,1,1.0f),
+
+        new Vector4(1,-1,1,1.0f),
+        new Vector4(1,1,1,1.0f),
+        new Vector4(1,1,-1,1.0f),
+        new Vector4(1,-1,-1,1.0f),
+        new Vector4(1,-1,1,1.0f),
+        new Vector4(1,1,-1,1.0f),
+
+        new Vector4(-1,-1,1,1.0f),
+        new Vector4(1,-1,1,1.0f),
+        new Vector4(1,-1,-1,1.0f),
+        new Vector4(1,-1,-1,1.0f),
+        new Vector4(-1,-1,-1,1.0f),
+        new Vector4(-1,-1,1,1.0f),
+
+        new Vector4(1,1,1,1.0f),
+        new Vector4(-1,1,1,1.0f),
+        new Vector4(1,1,-1,1.0f),
+        new Vector4(-1,1,-1,1.0f),
+        new Vector4(1,1,-1,1.0f),
+        new Vector4(-1,1,1,1.0f),
+    };
+        public Cell(Vector3[] pos, bool isActiveByDefault,Device device,float y,float property,float offset, float scaling)
         {
-            active = isActiveByDefault; 
-            for(int i=0;i<36;i++)
+            active = isActiveByDefault;
+            property -= offset;
+            property /= scaling;
+            for(int i=0;i< N_OF_VERTICES; i++)
             {
-                vertCol = new Vector4(y/2 + 0.2f,property/500,(float)Math.Log((1-y)*Math.E)/2 + 0.2f,1.0f);
-                vertData[i*2+1] = vertCol;
 
-            }
-            for (int i = 0; i < 36; i ++)
-            {
-                vertData[i*2] = new Vector4(pos[i],1.0f);
-
+                Vector4 vertCol = new Vector4((y + (float)Math.Log(property*(Math.E-1) + 1)) /2, (float)Math.Log(property * (Math.E - 1) + 1) / 2, ((1-y) + (float)Math.Log(property * (Math.E - 1) + 1)) / 2, 1.0f);
+                vertData[i * N_OF_ATTRIBS] = new Vector4(pos[i], 1.0f);
+                vertData[i * N_OF_ATTRIBS + 1] = vertCol;
+                vertData[i * N_OF_ATTRIBS + 2] = localPositions[i];
             }
 
             buffer = Buffer.Create(device, BindFlags.VertexBuffer, vertData);

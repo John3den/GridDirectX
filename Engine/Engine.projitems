@@ -12,6 +12,7 @@
     <Folder Include="$(MSBuildThisFileDirectory)Grid\" />
     <Folder Include="$(MSBuildThisFileDirectory)FileIO\" />
     <Folder Include="$(MSBuildThisFileDirectory)Math\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Slider\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)fileio\GridReader.cs" />
@@ -20,5 +21,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)grid\Grid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)grid\Property.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)math\Vector3i.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)slider\Slider.cs" />
   </ItemGroup>
 </Project>

@@ -22,5 +22,40 @@ namespace GridRender
         {
 
         }
+
+        private void panelControl1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void hScrollBar1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void hScrollBar3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkEdit2_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void trackBarControl1_EditValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkEdit1_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void trackBarControl2_EditValueChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

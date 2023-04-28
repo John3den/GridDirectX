@@ -8,16 +8,17 @@ namespace Engine
     {
         public Vector3i size;
         int cellCount = 0;
-        public Cell[] cells;
+        public Cell[,,] cells;
         public Property[] props;
+        float propertyoffset = 0;
+        float propertyscaling = 1;
         public Grid(string path, Device device)
         {
             GridReader reader = new GridReader(path);
             size = reader.GetGridSize();
             cellCount = size.x * size.y * size.z;
-            cells = new Cell[cellCount];
-            int currentCell = 0;
-            new PropertyReader("../../Resources/grid.binprops.txt", size, ref props);
+            cells = new Cell[size.x,size.y,size.z];
+            new PropertyReader("../../Resources/grid.binprops.txt", size, ref props,ref propertyscaling, ref propertyoffset);
             int count = -1;
             for (int k = 0; k < size.z; k++) 
             {
@@ -83,9 +84,8 @@ namespace Engine
                         posData[34] = v6;
                         posData[35] = v1;
 
-                        Cell cell = new Cell(posData,act, device, (float)k / (float)size.z, props[0].values[i,j,k]);
-                        cells[currentCell] = cell;
-                        currentCell++;
+                        Cell cell = new Cell(posData,act, device, (float)k / (float)size.z, props[0].values[i,j,k],propertyoffset,propertyscaling);
+                        cells[i, j,k] = cell;
                     }
                 }
             }

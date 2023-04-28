@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading.Tasks;
@@ -16,55 +15,22 @@ using Color = SharpDX.Color;
 using Device = SharpDX.Direct3D11.Device;
 using MapFlags = SharpDX.Direct3D11.MapFlags;
 using Engine;
+
 namespace MultiCube
 {
-
     internal class Program
     {
+        const int THREAD_COUNT = 4;
+
         Vector3 camPos = new Vector3(0,0,-10);
+
         Vector3 lookDir = new Vector3(0, 0, 1);
+
         float yaw = 0;
-        enum TestType
-        {
-            Immediate = 0,
-            Deferred = 1,
-            FrozenDeferred = 2
-        }
-
-        struct State
-        {
-            public bool Exit;
-            public int CountCubes;
-            public int ThreadCount;
-            public TestType Type;
-            public bool SimulateCpuUsage;
-            public bool UseMap;
-        }
-
-        const int MaxNumberOfCubes = 256;
-        const int MaxNumberOfThreads = 1;
-        const int BurnCpuFactor = 50;
-
         public void Run()
         {
-            // Initial state
-            var currentState = new State
-            {                CountCubes = 3,
-                ThreadCount = 1,
-                Type = TestType.Deferred,
-                SimulateCpuUsage = true,
-                // Default is using Map/Unmap
-                UseMap = true,
-            };
-            var nextState = currentState;
-
-            // Init Direct3D11
-
-            // Create the Rendering form 
             var form = new XtraForm1();
-            form.ClientSize = new Size(1024, 1024);
 
-            // SwapChain description 
             var desc = new SwapChainDescription()
             {
                 BufferCount = 2,
@@ -85,14 +51,14 @@ namespace MultiCube
             var immediateContext = device.ImmediateContext;
 
             // PreCreate deferred contexts 
-            var deferredContexts = new DeviceContext[MaxNumberOfThreads];
+            var deferredContexts = new DeviceContext[THREAD_COUNT];
             for (int i = 0; i < deferredContexts.Length; i++)
                 deferredContexts[i] = new DeviceContext(device);
 
             // Allocate rendering context array 
-            var contextPerThread = new DeviceContext[MaxNumberOfThreads];
+            var contextPerThread = new DeviceContext[THREAD_COUNT];
             contextPerThread[0] = immediateContext;
-            var commandLists = new CommandList[MaxNumberOfThreads];
+            var commandLists = new CommandList[THREAD_COUNT];
             CommandList[] frozenCommandLists = null;
 
             // Check if driver is supporting natively CommandList
@@ -116,7 +82,8 @@ namespace MultiCube
             var layout = new InputLayout(device, ShaderSignature.GetInputSignature(bytecode), new[]
                     {
                         new InputElement("POSITION", 0, Format.R32G32B32A32_Float, 0, 0),
-                        new InputElement("COLOR", 0, Format.R32G32B32A32_Float, 16, 0)
+                        new InputElement("COLOR", 0, Format.R32G32B32A32_Float, 16, 0),
+                        new InputElement("LOCALPOS", 0, Format.R32G32B32A32_Float, 32, 0)
                     });
             bytecode.Dispose();
 
@@ -124,10 +91,10 @@ namespace MultiCube
             var pixelShader = new PixelShader(device, bytecode);
             bytecode.Dispose();
 
-
             //read grid data here
             Grid grid = new Grid("../../Resources/grid.bin",device);
 
+            Slider slider = new Slider(form, grid);
 
             // Create Constant Buffer 
             var staticContantBuffer = new Buffer(device, Utilities.SizeOf<Matrix>(), ResourceUsage.Default, BindFlags.ConstantBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
@@ -150,14 +117,12 @@ namespace MultiCube
 
             var depthView = new DepthStencilView(device, depthBuffer);
 
-            // Prepare matrices & clocks
 
+
+            // Prepare matrices     
             const float viewZ = 5.0f;
-
-            // Prepare matrices 
             var view = Matrix.LookAtLH(new Vector3(0, 0, -viewZ), new Vector3(0, 0, 0), Vector3.UnitY);
             var proj = Matrix.PerspectiveFovLH((float)Math.PI / 4.0f, form.ClientSize.Width / (float)form.ClientSize.Height, 0.1f, 100.0f);
-
 
             // Use clock 
             var clock = new Stopwatch();
@@ -186,119 +151,64 @@ namespace MultiCube
                 if (arg.KeyCode == Keys.Right)
                     yaw += 0.05f;
 
-                if (arg.KeyCode == Keys.L && nextState.CountCubes > 1)
-                    nextState.CountCubes--;
-               if (arg.KeyCode == Keys.M && nextState.CountCubes < MaxNumberOfCubes)
-                    nextState.CountCubes++;
-
-                if (arg.KeyCode == Keys.F1)
-                    nextState.Type = (TestType)((((int)nextState.Type) + 1) % 3);
-                if (arg.KeyCode == Keys.F2)
-                    nextState.UseMap = !nextState.UseMap;
-                if (arg.KeyCode == Keys.F3)
-                    nextState.SimulateCpuUsage = !nextState.SimulateCpuUsage;
-
-                if (nextState.Type == TestType.Deferred)
-                {
-                    if (arg.KeyCode == Keys.Down && nextState.ThreadCount > 1)
-                        nextState.ThreadCount--;
-                    if (arg.KeyCode == Keys.Up && nextState.ThreadCount < MaxNumberOfThreads)
-                        nextState.ThreadCount++;
-                }
-                if (arg.KeyCode == Keys.Escape)
-                    nextState.Exit = true;
                 switchToNextState = true;
             };
-
-            // Function used to setup the pipeline
             Action SetupPipeline = () =>
             {
-                int threadCount = 1;
-                if (currentState.Type != TestType.Immediate)
-                {
-                    threadCount = currentState.Type == TestType.Deferred ? currentState.ThreadCount : 1;
-                    Array.Copy(deferredContexts, contextPerThread, contextPerThread.Length);
-                }
-                else
-                {
-                    contextPerThread[0] = immediateContext;
-                }
-                for (int i = 0; i < threadCount; i++)
+                Array.Copy(deferredContexts, contextPerThread, contextPerThread.Length);
+                for (int i = 0; i < THREAD_COUNT; i++)
                 {
                     var renderingContext = contextPerThread[i];
-                    // Prepare All the stages 
                     renderingContext.InputAssembler.InputLayout = layout;
                     renderingContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
-                    renderingContext.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(grid.cells[0].buffer, Utilities.SizeOf<Vector4>() * 2, 0));
-                    renderingContext.VertexShader.SetConstantBuffer(0, currentState.UseMap ? dynamicConstantBuffer : staticContantBuffer);
+                    renderingContext.VertexShader.SetConstantBuffer(0, dynamicConstantBuffer);
                     renderingContext.VertexShader.Set(vertexShader);
                     renderingContext.Rasterizer.SetViewport(0, 0, form.ClientSize.Width, form.ClientSize.Height);
                     renderingContext.PixelShader.Set(pixelShader);
                     renderingContext.OutputMerger.SetTargets(depthView, renderView);
                 }
             };
-            // Function used to render a row of cubes
-            Action<int, int, int> RenderRow = (int contextIndex, int fromY, int toY) =>
+            Action<int, int, int> RenderLayer = (int contextIndex, int fromY, int toY) =>
             {
                 var renderingContext = contextPerThread[contextIndex];
                 var time = clock.ElapsedMilliseconds / 1000.0f;
-
                 if (contextIndex == 0)
                 {
                     contextPerThread[0].ClearDepthStencilView(depthView, DepthStencilClearFlags.Depth, 1.0f, 0);
                     contextPerThread[0].ClearRenderTargetView(renderView, Color.Black);
                 }
 
-                int count = currentState.CountCubes;
-                float divCubes = (float)count / (viewZ - 1);
-
-                var rotateMatrix = Matrix.Scaling(1.0f / count);
-                int c;
-                c = 0;
-                for (int y = 0; y < grid.size.y; y++)
+                var rotateMatrix = Matrix.Scaling(1.0f/3f);
+                for (int y = fromY; y < toY; y++)
                 {
                     for (int x = 0; x < grid.size.x; x++)
                     {
                         for(int z = 0; z < grid.size.z; z++)    
                         {
-
-
-                             renderingContext.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(grid.cells[c].buffer, Utilities.SizeOf<Vector4>() * 2, 0));
-                            // Update WorldViewProj Matrix 
-                            Matrix worldViewProj;
-                            lookDir = new Vector3((float)Math.Sin(yaw), 0, (float)Math.Cos(yaw));
-                            //view = Matrix.LookAtLH(new Vector3(20 * (float)Math.Sin(time), 20,20*(float)Math.Cos(time)),new Vector3(0,0,0),Vector3.UnitY);
-                            view = Matrix.LookAtLH(camPos,camPos + lookDir,Vector3.UnitY);
-                            var viewProj = Matrix.Multiply(view, proj);
-                            worldViewProj = rotateMatrix * viewProj;
-                            worldViewProj.Transpose();
-
-                            if (currentState.UseMap)
+                            if (slider.Includes(x,y,z))
                             {
-                                var dataBox = renderingContext.MapSubresource(dynamicConstantBuffer, 0, MapMode.WriteDiscard, MapFlags.None);
-                                Utilities.Write(dataBox.DataPointer, ref worldViewProj);
-                                renderingContext.UnmapSubresource(dynamicConstantBuffer, 0);
-                            }
-                            else
-                            {
-                                renderingContext.UpdateSubresource(ref worldViewProj, staticContantBuffer);
-                            }
+                                renderingContext.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(grid.cells[x,y,z].buffer, Utilities.SizeOf<Vector4>() * 3, 0));
+                                Matrix worldViewProj;
+                                lookDir = new Vector3((float)Math.Sin(yaw), 0, (float)Math.Cos(yaw));
+                                view = Matrix.LookAtLH(camPos, camPos + lookDir, Vector3.UnitY);
+                                var viewProj = Matrix.Multiply(view, proj);
+                                worldViewProj = rotateMatrix * viewProj;
+                                worldViewProj.Transpose();
 
-                            // Draw the cube 
-                            renderingContext.Draw(36, 0);
-                            c++;
+                                    var dataBox = renderingContext.MapSubresource(dynamicConstantBuffer, 0, MapMode.WriteDiscard, MapFlags.None);
+                                    Utilities.Write(dataBox.DataPointer, ref worldViewProj);
+                                    renderingContext.UnmapSubresource(dynamicConstantBuffer, 0);
+                                renderingContext.Draw(36, 0);
+                            }
                         }
                     }
                 }
-
-                if (currentState.Type != TestType.Immediate)
-                    commandLists[contextIndex] = renderingContext.FinishCommandList(false);
+                commandLists[contextIndex] = renderingContext.FinishCommandList(false);
             };
-
 
             Action<int> RenderDeferred = (int threadCount) =>
             {
-                int deltaCube = currentState.CountCubes / threadCount;
+                int deltaCube = grid.size.y/threadCount;
                 if (deltaCube == 0) deltaCube = 1;
                 int nextStartingRow = 0;
                 var tasks = new Task[threadCount];
@@ -306,84 +216,43 @@ namespace MultiCube
                 {
                     var threadIndex = i;
                     int fromRow = nextStartingRow;
-                    int toRow = (i + 1) == threadCount ? currentState.CountCubes : fromRow + deltaCube;
-                    if (toRow > currentState.CountCubes)
-                        toRow = currentState.CountCubes;
+                    int toRow = (i + 1) == threadCount ? grid.size.y : fromRow + deltaCube;
+                    if (toRow > grid.size.y)
+                        toRow = grid.size.y;
                     nextStartingRow = toRow;
 
-                    tasks[i] = new Task(() => RenderRow(threadIndex, fromRow, toRow));
+                    tasks[i] = new Task(() => RenderLayer(threadIndex, fromRow, toRow));
                     tasks[i].Start();
                 }
                 Task.WaitAll(tasks);
             };
 
-
-
-            // Main Loop
-
             RenderLoop.Run(form, () =>
             {
-                if (currentState.Exit)
-                    form.Close();
+
+                slider.Update();
 
                 fpsCounter++;
                 if (fpsTimer.ElapsedMilliseconds > 1000)
                 {
-                    var typeStr = currentState.Type.ToString();
-                    if (currentState.Type != TestType.Immediate && !supportCommandList) typeStr += "*";
-
-                    form.Text = string.Format("SharpDX - MultiCube D3D11 - (F1) {0} - (F2) {1} - (F3) {2} - Threads ↑↓{3} - Count ←{4}→ - FPS: {5:F2} ({6:F2}ms)", typeStr, currentState.UseMap ? "Map/UnMap" : "UpdateSubresource", currentState.SimulateCpuUsage ? "BurnCPU On" : "BurnCpu Off", currentState.Type == TestType.Deferred ? currentState.ThreadCount : 1, currentState.CountCubes * currentState.CountCubes, 1000.0 * fpsCounter / fpsTimer.ElapsedMilliseconds, (float)fpsTimer.ElapsedMilliseconds / fpsCounter);
+                    form.Text = string.Format("SharpDX - FPS: {0:F2} ({1:F2}ms)", 1000.0 * fpsCounter / fpsTimer.ElapsedMilliseconds, (float)fpsTimer.ElapsedMilliseconds / fpsCounter);
                     fpsTimer.Reset();
                     fpsTimer.Stop();
                     fpsTimer.Start();
                     fpsCounter = 0;
                 }
 
-                // Setup the pipeline before any rendering
                 SetupPipeline();
 
-                // Execute on the rendering thread when ThreadCount == 1 or No deferred rendering is selected
-                if (currentState.Type == TestType.Immediate || (currentState.Type == TestType.Deferred && currentState.ThreadCount == 1))
+                RenderDeferred(THREAD_COUNT);
+
+                for (int i = 0; i < THREAD_COUNT; i++)
                 {
-                    RenderRow(0, 0, currentState.CountCubes);
+                    var commandList = commandLists[i];
+                    immediateContext.ExecuteCommandList(commandList, false);
+                    commandList.Dispose();
+                    commandLists[i] = null; 
                 }
-
-                // In case of deferred context, use of FinishCommandList / ExecuteCommandList
-                if (currentState.Type != TestType.Immediate)
-                {
-                    if (currentState.Type == TestType.FrozenDeferred)
-                    {
-                        if (commandLists[0] == null)
-                            RenderDeferred(1);
-                    }
-                    else if (currentState.ThreadCount > 1)
-                    {
-                        RenderDeferred(currentState.ThreadCount);
-                    }
-
-                    for (int i = 0; i < currentState.ThreadCount; i++)
-                    {
-                        var commandList = commandLists[i];
-                        // Execute the deferred command list on the immediate context
-                        immediateContext.ExecuteCommandList(commandList, false);
-
-                        // For classic deferred we release the command list. Not for frozen
-                        if (currentState.Type == TestType.Deferred)
-                        {
-                            // Release the command list
-                            commandList.Dispose();
-                            commandLists[i] = null;
-                        }
-                    }
-                }
-
-                if (switchToNextState)
-                {
-                    currentState = nextState;
-                    switchToNextState = false;
-                }
-
-                // Present! 
                 swapChain.Present(0, PresentFlags.None);
             });
         }
