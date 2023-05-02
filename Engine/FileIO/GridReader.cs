@@ -1,3 +1,4 @@
+using DevExpress.XtraReports.Design;
 using SharpDX;
 using System.IO;
 using System.Text;
@@ -7,6 +8,9 @@ namespace Engine
     {
         Stream stream;
         BinaryReader reader;
+        public Vector3 mostCorner;
+        public Vector3 leastCorner;
+        bool readFirstVertex = false;
         public Vector3i GetGridSize()
         {
             int x = reader.ReadInt32();
@@ -23,7 +27,42 @@ namespace Engine
             float x = reader.ReadSingle();
             float y = reader.ReadSingle();
             float z = reader.ReadSingle();
-            return new Vector3(x, y, z);
+            Vector3 cellVertexCoordinates = new Vector3(x, y, z);
+            if (!readFirstVertex)
+            {
+                mostCorner = cellVertexCoordinates;
+                leastCorner = cellVertexCoordinates;
+                readFirstVertex = true;
+            }
+            else
+            {
+                if(x > mostCorner.X)
+                {
+                    mostCorner.X = x;
+                }
+                if(x < leastCorner.X)
+                {
+                    leastCorner.X = x;
+                }
+                if(y > mostCorner.Y)
+                {
+                    mostCorner.Y = y;
+                }
+                if(y < leastCorner.Y)
+                {
+                    leastCorner.Y = y;
+                }
+                if(z > mostCorner.Z)
+                {
+                    mostCorner.Z = z;
+                }
+                if(z < leastCorner.Z)
+                {
+                    leastCorner.Z = z;
+                }
+
+            }
+            return cellVertexCoordinates;
         }
         public GridReader(string path)
         {

@@ -79,8 +79,19 @@ namespace Engine
                 vertData[i * N_OF_ATTRIBS] = new Vector4(pos[i], 1.0f);
                 vertData[i * N_OF_ATTRIBS + 1] = vertCol;
                 vertData[i * N_OF_ATTRIBS + 2] = localPositions[i];
+                //Console.WriteLine(vertData[i * N_OF_ATTRIBS]);
             }
-
+        }
+        public void OffsetAndScaleVertices(Vector3 offset, Vector3 scale)
+        {
+            for (int i = 0; i < N_OF_VERTICES; i++)
+            {
+                vertData[i * N_OF_ATTRIBS] = new Vector4(vertData[i * N_OF_ATTRIBS].X/scale.X, vertData[i * N_OF_ATTRIBS].Y / scale.Y, vertData[i * N_OF_ATTRIBS].Z / scale.Z,1.0f);
+                vertData[i * N_OF_ATTRIBS] += new Vector4(offset.X / scale.X, offset.Y / scale.Y, offset.Z / scale.Z, 0.0f); 
+            }
+        }
+        public void CreateBuffer(Device device)
+        {
             buffer = Buffer.Create(device, BindFlags.VertexBuffer, vertData);
         }
         public Buffer getVert()

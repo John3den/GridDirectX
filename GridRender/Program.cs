@@ -22,11 +22,9 @@ namespace MultiCube
     {
         const int THREAD_COUNT = 4;
 
-        Vector3 camPos = new Vector3(0,0,-10);
+        Camera camera;
 
-        Vector3 lookDir = new Vector3(0, 0, 1);
-
-        float yaw = 0;
+        CursorInfo cursor;
         public void Run()
         {
             var form = new XtraForm1();
@@ -35,15 +33,14 @@ namespace MultiCube
             {
                 BufferCount = 2,
                 ModeDescription =
-                    new ModeDescription(form.ClientSize.Width, form.ClientSize.Height,
-                                        new Rational(60, 1), Format.R8G8B8A8_UNorm),
+                new ModeDescription(form.ClientSize.Width, form.ClientSize.Height,
+                    new Rational(60, 1), Format.R8G8B8A8_UNorm),
                 IsWindowed = true,
                 OutputHandle = form.Handle,
                 SampleDescription = new SampleDescription(1, 0),
                 SwapEffect = SwapEffect.Discard,
                 Usage = Usage.RenderTargetOutput
             };
-
             // Create Device and SwapChain 
             Device device;
             SwapChain swapChain;
@@ -93,9 +90,11 @@ namespace MultiCube
 
             //read grid data here
             Grid grid = new Grid("../../Resources/grid.bin",device);
-
             Slider slider = new Slider(form, grid);
+            camera = new Camera();
 
+            form.StartPosition = FormStartPosition.CenterScreen;
+            cursor = new CursorInfo(Cursor.Position);
             // Create Constant Buffer 
             var staticContantBuffer = new Buffer(device, Utilities.SizeOf<Matrix>(), ResourceUsage.Default, BindFlags.ConstantBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
             var dynamicConstantBuffer = new Buffer(device, Utilities.SizeOf<Matrix>(), ResourceUsage.Dynamic, BindFlags.ConstantBuffer, CpuAccessFlags.Write, ResourceOptionFlags.None, 0);
@@ -134,23 +133,59 @@ namespace MultiCube
 
             // Register KeyDown event handler on the form
             bool switchToNextState = false;
-
             // Install keys handlers 
-            form.KeyDown += (target, arg) =>
+            form.MouseDown += (target, arg) =>
+            {
+                if (arg.Button == MouseButtons.Right)
+                {
+                    if(cursor.IsFree())
+                    {
+                        cursor.Lock();
+                        Cursor.Hide();
+                    }
+                    else
+                    {
+                        cursor.Unlock();
+                        Cursor.Show();
+                        Cursor.Position = new System.Drawing.Point(form.Size.Width / 2, form.Size.Height / 2);
+                        cursor.Update(Cursor.Position);
+                    }
+                }
+            };
+            form.KeyUp += (target, arg) =>
             {
                 if (arg.KeyCode == Keys.W)
-                    camPos += lookDir*0.1f;
+                    KeyboardState.KeyUp(Keys.W);
                 if (arg.KeyCode == Keys.S)
-                    camPos -= lookDir * 0.1f;
-                if (arg.KeyCode == Keys.Up)
-                    camPos.Y += 0.1f;
-                if (arg.KeyCode == Keys.Down)
-                    camPos.Y -= 0.1f;
-                if (arg.KeyCode == Keys.Left)
-                    yaw -= 0.05f;
-                if (arg.KeyCode == Keys.Right)
-                    yaw += 0.05f;
-
+                    KeyboardState.KeyUp(Keys.S);
+                if (arg.KeyCode == Keys.Q)
+                    KeyboardState.KeyUp(Keys.Q);
+                if (arg.KeyCode == Keys.E)
+                    KeyboardState.KeyUp(Keys.E);
+                if (arg.KeyCode == Keys.A)
+                    KeyboardState.KeyUp(Keys.A);
+                if (arg.KeyCode == Keys.D)
+                    KeyboardState.KeyUp(Keys.D);
+            };
+            form.KeyDown += (target, arg) =>
+            {
+                if (arg.KeyCode == Keys.F)
+                {
+                    camera.focused = !camera.focused;
+                    if (!camera.focused) camera.Unfocus();
+                }
+                if (arg.KeyCode == Keys.W)
+                    KeyboardState.KeyDown(Keys.W);
+                if (arg.KeyCode == Keys.S)
+                    KeyboardState.KeyDown(Keys.S);
+                if (arg.KeyCode == Keys.Q)
+                    KeyboardState.KeyDown(Keys.Q);
+                if (arg.KeyCode == Keys.E)
+                    KeyboardState.KeyDown(Keys.E);
+                if (arg.KeyCode == Keys.A)
+                    KeyboardState.KeyDown(Keys.A);
+                if (arg.KeyCode == Keys.D)
+                    KeyboardState.KeyDown(Keys.D);
                 switchToNextState = true;
             };
             Action SetupPipeline = () =>
@@ -177,7 +212,7 @@ namespace MultiCube
                     contextPerThread[0].ClearDepthStencilView(depthView, DepthStencilClearFlags.Depth, 1.0f, 0);
                     contextPerThread[0].ClearRenderTargetView(renderView, Color.Black);
                 }
-
+                
                 var rotateMatrix = Matrix.Scaling(1.0f/3f);
                 for (int y = fromY; y < toY; y++)
                 {
@@ -189,15 +224,15 @@ namespace MultiCube
                             {
                                 renderingContext.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(grid.cells[x,y,z].buffer, Utilities.SizeOf<Vector4>() * 3, 0));
                                 Matrix worldViewProj;
-                                lookDir = new Vector3((float)Math.Sin(yaw), 0, (float)Math.Cos(yaw));
-                                view = Matrix.LookAtLH(camPos, camPos + lookDir, Vector3.UnitY);
+                                view = camera.GetView();
+                                //view *=Matrix.RotationY(time);
                                 var viewProj = Matrix.Multiply(view, proj);
                                 worldViewProj = rotateMatrix * viewProj;
+                                worldViewProj *= Matrix.Translation(0.2f,0,0);
                                 worldViewProj.Transpose();
-
-                                    var dataBox = renderingContext.MapSubresource(dynamicConstantBuffer, 0, MapMode.WriteDiscard, MapFlags.None);
-                                    Utilities.Write(dataBox.DataPointer, ref worldViewProj);
-                                    renderingContext.UnmapSubresource(dynamicConstantBuffer, 0);
+                                var dataBox = renderingContext.MapSubresource(dynamicConstantBuffer, 0, MapMode.WriteDiscard, MapFlags.None);
+                                Utilities.Write(dataBox.DataPointer, ref worldViewProj);
+                                renderingContext.UnmapSubresource(dynamicConstantBuffer, 0);
                                 renderingContext.Draw(36, 0);
                             }
                         }
@@ -230,8 +265,16 @@ namespace MultiCube
             RenderLoop.Run(form, () =>
             {
 
-                slider.Update();
+                if(!cursor.IsFree())
+                {
+                    cursor.Update(Cursor.Position);
+                    camera.Rotate(new Vector2(cursor.GetDelta().Y, cursor.GetDelta().X));
+                    Cursor.Position = new System.Drawing.Point(form.Size.Width / 2, form.Size.Height / 2);
+                    cursor.Update(Cursor.Position);
+                }
+                camera.Update();
 
+                slider.Update();
                 fpsCounter++;
                 if (fpsTimer.ElapsedMilliseconds > 1000)
                 {
@@ -256,7 +299,7 @@ namespace MultiCube
                 swapChain.Present(0, PresentFlags.None);
             });
         }
-
+        
         [STAThread]
         private static void Main()
         {

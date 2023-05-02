@@ -1,3 +1,4 @@
+using DevExpress.XtraPrinting.BarCode;
 using SharpDX;
 using SharpDX.Direct3D11;
 using System;
@@ -7,11 +8,15 @@ namespace Engine
     public class Grid
     {
         public Vector3i size;
+        public Vector3 position = new Vector3();
         int cellCount = 0;
         public Cell[,,] cells;
         public Property[] props;
         float propertyoffset = 0;
         float propertyscaling = 1;
+        Vector3 leastCorner = new Vector3();
+        Vector3 mostCorner = new Vector3();
+        Vector3 scale = new Vector3();
         public Grid(string path, Device device)
         {
             GridReader reader = new GridReader(path);
@@ -27,19 +32,17 @@ namespace Engine
                     for (int j = 0; j < size.y; j++)
                     {
                         count++;
-                        float scale = 200;
+
                         bool act = reader.GetCellStatus();
-                        Vector3 v0 = reader.GetCellVertex() / scale;
-                        Vector3 v4 = reader.GetCellVertex() / scale;
-                        Vector3 v1 = reader.GetCellVertex() / scale;
-                        Vector3 v5 = reader.GetCellVertex() / scale;
-                        Vector3 v2 = reader.GetCellVertex() / scale;
-                        Vector3 v6 = reader.GetCellVertex() / scale;
-                        Vector3 v3 = reader.GetCellVertex() / scale;
-                        Vector3 v7 = reader.GetCellVertex() / scale;
+                        Vector3 v0 = reader.GetCellVertex();
+                        Vector3 v4 = reader.GetCellVertex();
+                        Vector3 v1 = reader.GetCellVertex();
+                        Vector3 v5 = reader.GetCellVertex();
+                        Vector3 v2 = reader.GetCellVertex();
+                        Vector3 v6 = reader.GetCellVertex();
+                        Vector3 v3 = reader.GetCellVertex();
+                        Vector3 v7 = reader.GetCellVertex();
                         Vector3[] posData = new Vector3[36];
-
-
 
                         //TOP
                         posData[0] = v0;
@@ -89,7 +92,19 @@ namespace Engine
                     }
                 }
             }
-
+            scale = (reader.mostCorner - reader.leastCorner);
+            position = ((reader.mostCorner + reader.leastCorner) / 2);
+            for (int k = 0; k < size.z; k++)
+            {
+                for (int i = 0; i < size.x; i++)
+                {
+                    for (int j = 0; j < size.y; j++)
+                    {
+                        cells[i, j, k].OffsetAndScaleVertices(-position,scale);
+                        cells[i, j, k].CreateBuffer(device);
+                    }
+                }
+            }
         }
     }
 }
