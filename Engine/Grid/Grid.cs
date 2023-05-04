@@ -2,37 +2,41 @@ using DevExpress.XtraPrinting.BarCode;
 using SharpDX;
 using SharpDX.Direct3D11;
 using System;
+using System.IO;
 
 namespace Engine
 {
     public class Grid
     {
-        public Vector3i size;
-        public Vector3 position = new Vector3();
-        int cellCount = 0;
-        public Cell[,,] cells;
-        public Property[] props;
-        float propertyoffset = 0;
-        float propertyscaling = 1;
-        Vector3 leastCorner = new Vector3();
-        Vector3 mostCorner = new Vector3();
-        Vector3 scale = new Vector3();
-        public Grid(string path, Device device)
+        Vector3i size;
+        Cell[,,] cells;
+        int numberOfProperties; 
+        int currentProperty = 0;
+        public int CurrentProperty
         {
-            GridReader reader = new GridReader(path);
-            size = reader.GetGridSize();
-            cellCount = size.x * size.y * size.z;
-            cells = new Cell[size.x,size.y,size.z];
-            new PropertyReader("../../Resources/grid.binprops.txt", size, ref props,ref propertyscaling, ref propertyoffset);
-            int count = -1;
-            for (int k = 0; k < size.z; k++) 
+            set
             {
-                for (int i = 0; i < size.x; i++) 
+                if(value < numberOfProperties && value >=0)
+                {
+                    currentProperty = value;
+                }
+            }
+            get { return currentProperty; }
+        }
+        public Property[] props;
+        string pathToCells;
+        Device device;
+        public void GenerateCells()
+        {
+            GridReader reader = new GridReader(pathToCells);
+            size = reader.GetGridSize();
+            cells = new Cell[size.x, size.y, size.z];
+            for (int k = 0; k < size.z; k++)
+            {
+                for (int i = 0; i < size.x; i++)
                 {
                     for (int j = 0; j < size.y; j++)
                     {
-                        count++;
-
                         bool act = reader.GetCellStatus();
                         Vector3 v0 = reader.GetCellVertex();
                         Vector3 v4 = reader.GetCellVertex();
@@ -56,7 +60,7 @@ namespace Engine
                         posData[7] = v7;
                         posData[8] = v5;
                         posData[9] = v6;
-                        posData[10] = v5;   
+                        posData[10] = v5;
                         posData[11] = v7;
                         //FRONT
                         posData[12] = v1;
@@ -87,24 +91,46 @@ namespace Engine
                         posData[34] = v6;
                         posData[35] = v1;
 
-                        Cell cell = new Cell(posData,act, device, (float)k / (float)size.z, props[0].values[i,j,k],propertyoffset,propertyscaling);
-                        cells[i, j,k] = cell;
+                        Cell cell = new Cell(posData, act, device, (float)k / (float)size.z, props[currentProperty].values[i, j, k], props[currentProperty].GetOffset(), props[currentProperty].GetScaling());
+                        cells[i, j, k] = cell;
                     }
                 }
             }
-            scale = (reader.mostCorner - reader.leastCorner);
-            position = ((reader.mostCorner + reader.leastCorner) / 2);
+
             for (int k = 0; k < size.z; k++)
             {
                 for (int i = 0; i < size.x; i++)
                 {
                     for (int j = 0; j < size.y; j++)
                     {
-                        cells[i, j, k].OffsetAndScaleVertices(-position,scale);
+                        cells[i, j, k].OffsetAndScaleVertices(-reader.GetGridPosition(), reader.GetGridScale());
                         cells[i, j, k].CreateBuffer(device);
                     }
                 }
             }
+            reader.Close();
+        }
+        public Grid(Device dev, string path)
+        {
+            pathToCells = path;
+            GridReader reader = new GridReader(pathToCells);
+            size = reader.GetGridSize();
+            new PropertyReader("../../Resources/grid.binprops.txt", size, ref props, ref numberOfProperties);
+            device = dev;
+
+            reader.Close();
+        }
+        public Cell GetCell(int x, int y, int z)
+        {
+            return cells[x, y, z];
+        }
+        public Vector3i GetSize()
+        {
+            return size;
+        }
+        public int GetNumberOfProperties()
+        {
+            return numberOfProperties; 
         }
     }
 }

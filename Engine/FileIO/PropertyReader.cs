@@ -7,46 +7,57 @@ namespace Engine
 {
     public class PropertyReader
     {
-        public PropertyReader(string path, Vector3i dimensions, ref Property[] props, ref float propscale, ref float propoffset)
+        public PropertyReader(string path, Vector3i dimensions, ref Property[] props, ref int numberOfProperties)
         {
-            int propsCount = 0;
-            int size = dimensions.x * dimensions.y * dimensions.z;
-            float[,,] data = new float[dimensions.x, dimensions.y, dimensions.z];
+            
             string[] lines = File.ReadAllLines(path);
-            int c = 0;
-            int pc = 0;
-            float minProp = 0;
-            float maxProp = 0;
-            int offset = 2;// first two lines
-            props = new Property[Convert.ToInt32(lines[0])];
-            for (int i = 0; i < dimensions.x; i++)
+            int offset = 1;// first two lines
+            int valuesRead = 0;
+            numberOfProperties = Convert.ToInt32(lines[0]);
+            props = new Property[numberOfProperties];
+            for (int m = 0; m < numberOfProperties; m++)
             {
-                for (int j = 0; j < dimensions.y; j++)
+                string PropertyLabel = "property";
+                float minProp = 0;
+                float maxProp = 0;
+                float[,,] data;
+                data = new float[dimensions.x, dimensions.y, dimensions.z];
+                for (int i = 0; i < dimensions.x; i++)
                 {
-                    for (int k = 0; k < dimensions.z; k++)
-                    { 
-                        data[i, j, k] = Convert.ToSingle(lines[c + offset], CultureInfo.InvariantCulture);
-
-                        if(c == 0)
+                    for (int j = 0; j < dimensions.y; j++)
+                    {
+                        for (int k = 0; k < dimensions.z; k++)
                         {
-                            minProp = data[i, j, k];
-                            maxProp = data[i, j, k];
-                        }
-                        else
-                        {
-                            minProp = minProp < data[i, j, k] ? minProp : data[i, j, k];
-                            maxProp = maxProp > data[i, j, k] ? maxProp : data[i, j, k];
-                        }
+                            if (Char.IsLetter(lines[valuesRead + offset][0]))
+                            {
+                                PropertyLabel = lines[valuesRead + offset];
+                                offset++;
+                            }
+                            data[i, j, k] = Convert.ToSingle(lines[valuesRead + offset], CultureInfo.InvariantCulture);
 
-                        c++;
+                            if (valuesRead == 0)
+                            {
+                                minProp = data[i, j, k];
+                                maxProp = data[i, j, k];
+                            }
+                            else
+                            {
+                                minProp = minProp < data[i, j, k] ? minProp : data[i, j, k];
+                                maxProp = maxProp > data[i, j, k] ? maxProp : data[i, j, k];
+                            }
 
+                            valuesRead++;
+
+                        }
                     }
                 }
+                float propscale = maxProp - minProp;
+                if (propscale == 0) propscale = 1;
+                float propoffset = minProp;
+                props[m] = new Property(dimensions, data, propoffset, propscale,PropertyLabel);
             }
-            propscale = maxProp - minProp;
-            if (propscale == 0) propscale = 1;
-            propoffset = minProp;
-            props[0] = new Property(dimensions,data);
+            
+
         }
     }
         

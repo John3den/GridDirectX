@@ -30,11 +30,11 @@ namespace Engine
             CheckZ = form.GetCheck3();
             CheckFull = form.GetFullCheck();
 
-            scrollX.Properties.Maximum = grid.size.x - 1;
-            scrollY.Properties.Maximum = grid.size.y - 1;
-            scrollZ.Properties.Maximum = grid.size.z - 1;
+            scrollX.Properties.Maximum = grid.GetSize().x - 1;
+            scrollY.Properties.Maximum = grid.GetSize().y - 1;
+            scrollZ.Properties.Maximum = grid.GetSize().z - 1;
         }
-        public bool Includes(int x, int y, int z)
+        public bool IncludesCell(int x, int y, int z)
         {
             return (isFullGrid) || ((z == currentZ && isEnabledZ) || (y == currentY && isEnabledY) || (x == currentX && isEnabledX));
         }

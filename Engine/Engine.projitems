@@ -20,11 +20,15 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)fileio\GridReader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)fileio\PropertyReader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)fileio\VertexReader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)grid\Cell.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)grid\Grid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)grid\Property.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)input\InputHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)input\KeyboardState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)math\Vector3i.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)render\Renderer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Render\RenderLoopControl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)scene\Camera.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)slider\Slider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\CursorInfo.cs" />

@@ -1,4 +1,5 @@
 ﻿using DevExpress.XtraEditors;
+using Engine;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,6 +14,7 @@ namespace GridRender
 {
     public partial class XtraForm1 : DevExpress.XtraEditors.XtraForm
     {
+        public RenderLoopControl loopControl;
         public XtraForm1()
         {
             InitializeComponent();
@@ -54,6 +56,25 @@ namespace GridRender
         }
 
         private void trackBarControl2_EditValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void simpleButton1_Click(object sender, EventArgs e)
+        {
+            loopControl.ChangeProperty(labelControl3, true);
+        }
+
+        private void simpleButton3_Click(object sender, EventArgs e)
+        {
+            loopControl.ChangeProperty(labelControl3, false);
+        }
+        private void labelControl3_Click(object sender, EventArgs e)
         {
 
         }

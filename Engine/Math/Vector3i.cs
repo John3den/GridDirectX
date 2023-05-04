@@ -1,6 +1,6 @@
 namespace Engine
 {
-    public class Vector3i
+    public struct Vector3i
     {
         public int x;
         public int y; 

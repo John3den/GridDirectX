@@ -1,6 +1,4 @@
-using DevExpress.XtraLayout;
 using SharpDX;
-using System;
 using Point = System.Drawing.Point;
 namespace Engine
 {

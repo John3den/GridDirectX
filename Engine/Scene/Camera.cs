@@ -6,14 +6,14 @@ namespace Engine
 {
     public class Camera
     {
-        public Vector3 lookDirection;
+        Vector3 lookDirection;
         Vector3 leftDirection;
-        public Vector3 position;
+        Vector3 position;
+        Vector3 upDirection;
+        Matrix view;
         float pitch = 0;
         float yaw = 0;
-        Matrix view;
-        Vector3 upDirection;
-        public bool focused = false;
+        bool focused = true;
         public Camera()
         {
             leftDirection = new Vector3((float)Math.Sin(yaw + Math.PI / 2) * (float)Math.Sin(pitch), (float)Math.Cos(pitch), (float)Math.Cos(yaw + Math.PI / 2) * (float)Math.Sin(pitch));
@@ -24,37 +24,28 @@ namespace Engine
         }
         public void Update()
         {
-            float speed = 0.01f;
+            float speed = 1f;
             if (KeyboardState.IsPressed(Keys.W))
-                position += lookDirection * speed;
+                position += lookDirection * speed * RenderLoopControl.deltaTime;
             if (KeyboardState.IsPressed(Keys.S))
-                position -= lookDirection * speed;
+                position -= lookDirection * speed * RenderLoopControl.deltaTime;
             if (KeyboardState.IsPressed(Keys.Q))
-                position.Y += speed;
+                position.Y += speed * RenderLoopControl.deltaTime;
             if (KeyboardState.IsPressed(Keys.E))
-                position.Y -= speed;
+                position.Y -= speed * RenderLoopControl.deltaTime;
             if (KeyboardState.IsPressed(Keys.A))
             {
-    
-                    position += leftDirection * speed;
-
+                    position += leftDirection * speed * RenderLoopControl.deltaTime;
             }
-
             if (KeyboardState.IsPressed(Keys.D))
             {
-     
-                    position -= leftDirection * speed;
-   
+                    position -= leftDirection * speed * RenderLoopControl.deltaTime;
             }
-
             if (focused)
                 lookDirection = -position;
             else
                 lookDirection = new Vector3((float)Math.Sin(yaw) * (float)Math.Sin(pitch), (float)Math.Cos(pitch), (float)Math.Cos(yaw) * (float)Math.Sin(pitch )); 
-         
-
-                leftDirection = Vector3.Cross(lookDirection, Vector3.Up);
-
+            leftDirection = Vector3.Cross(lookDirection, Vector3.Up);
             view = Matrix.LookAtLH(position, position + lookDirection, Vector3.UnitY);
         }
         public void UpdView()
@@ -64,10 +55,6 @@ namespace Engine
         public void Unfocus()
         {
             Vector3 normal = Vector3.Normalize(-position);
-            Console.WriteLine(" " );
-            Console.WriteLine(normal);
-            Console.WriteLine(pitch +" " + yaw);
-
             pitch = (float) (Math.Acos(normal.Y)  );
             if(normal.Z>0)
                 yaw =  (float)Math.Atan(normal.X/ normal.Z);
@@ -75,6 +62,14 @@ namespace Engine
                 yaw = (float)Math.Atan(normal.X / normal.Z) + (float)Math.PI;
             Console.WriteLine(pitch + " " + yaw);
 
+        }
+        public void ChangeFocus()
+        {
+            focused = !focused;
+            if (!focused)
+            {
+                Unfocus();
+            }
         }
         public void Rotate(Vector2 rotationVector)
         {

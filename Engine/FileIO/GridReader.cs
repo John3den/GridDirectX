@@ -6,59 +6,63 @@ namespace Engine
 {
     public class GridReader
     {
-        Stream stream;
-        BinaryReader reader;
-        public Vector3 mostCorner;
-        public Vector3 leastCorner;
-        bool readFirstVertex = false;
+        Stream _stream;
+        BinaryReader _reader;
+        Vector3 _mostCorner;
+        Vector3 _leastCorner;
+        bool _readFirstVertex = false;
         public Vector3i GetGridSize()
         {
-            int x = reader.ReadInt32();
-            int y = reader.ReadInt32();
-            int z = reader.ReadInt32();
+            int x = _reader.ReadInt32();
+            int y = _reader.ReadInt32();
+            int z = _reader.ReadInt32();
             return new Vector3i(x, y, z);
+        }
+        public void Close()
+        {
+            _reader.Close();
         }
         public bool GetCellStatus()
         {
-            return reader.ReadBoolean();
+            return _reader.ReadBoolean();
         }
         public Vector3 GetCellVertex()
         {
-            float x = reader.ReadSingle();
-            float y = reader.ReadSingle();
-            float z = reader.ReadSingle();
+            float x = _reader.ReadSingle();
+            float y = _reader.ReadSingle();
+            float z = _reader.ReadSingle();
             Vector3 cellVertexCoordinates = new Vector3(x, y, z);
-            if (!readFirstVertex)
+            if (!_readFirstVertex)
             {
-                mostCorner = cellVertexCoordinates;
-                leastCorner = cellVertexCoordinates;
-                readFirstVertex = true;
+                _mostCorner = cellVertexCoordinates;
+                _leastCorner = cellVertexCoordinates;
+                _readFirstVertex = true;
             }
             else
             {
-                if(x > mostCorner.X)
+                if(x > _mostCorner.X)
                 {
-                    mostCorner.X = x;
+                    _mostCorner.X = x;
                 }
-                if(x < leastCorner.X)
+                if(x < _leastCorner.X)
                 {
-                    leastCorner.X = x;
+                    _leastCorner.X = x;
                 }
-                if(y > mostCorner.Y)
+                if(y > _mostCorner.Y)
                 {
-                    mostCorner.Y = y;
+                    _mostCorner.Y = y;
                 }
-                if(y < leastCorner.Y)
+                if(y < _leastCorner.Y)
                 {
-                    leastCorner.Y = y;
+                    _leastCorner.Y = y;
                 }
-                if(z > mostCorner.Z)
+                if(z > _mostCorner.Z)
                 {
-                    mostCorner.Z = z;
+                    _mostCorner.Z = z;
                 }
-                if(z < leastCorner.Z)
+                if(z < _leastCorner.Z)
                 {
-                    leastCorner.Z = z;
+                    _leastCorner.Z = z;
                 }
 
             }
@@ -66,13 +70,21 @@ namespace Engine
         }
         public GridReader(string path)
         {
-            stream = File.Open(path, FileMode.Open);
-            reader = new BinaryReader(stream, Encoding.UTF8, false);
+            _stream = File.Open(path, FileMode.Open);
+            _reader = new BinaryReader(_stream, Encoding.UTF8, false);
         }
         ~GridReader()
         {
-            stream.Close();
-            reader.Close();
+            _stream.Close();
+            _reader.Close();
+        }
+        public Vector3 GetGridPosition()
+        {
+            return ((_mostCorner + _leastCorner) / 2);
+        }
+        public Vector3 GetGridScale()
+        {
+            return (_mostCorner - _leastCorner);
         }
     }
 }
