@@ -8,34 +8,34 @@ namespace Engine
 {
     public class Grid
     {
-        Vector3i size;
-        Cell[,,] cells;
-        int numberOfProperties; 
-        int currentProperty = 0;
+        Vector3i _size;
+        Cell[,,] _cells;
+        int _numberOfProperties; 
+        int _currentProperty = 0;
         public int CurrentProperty
         {
             set
             {
-                if(value < numberOfProperties && value >=0)
+                if(value < _numberOfProperties && value >=0)
                 {
-                    currentProperty = value;
+                    _currentProperty = value;
                 }
             }
-            get { return currentProperty; }
+            get { return _currentProperty; }
         }
-        public Property[] props;
-        string pathToCells;
-        Device device;
+        public Property[] _props;
+        string _pathToCells;
+        Device _device;
         public void GenerateCells()
         {
-            GridReader reader = new GridReader(pathToCells);
-            size = reader.GetGridSize();
-            cells = new Cell[size.x, size.y, size.z];
-            for (int k = 0; k < size.z; k++)
+            GridReader reader = new GridReader(_pathToCells);
+            _size = reader.GetGridSize();
+            _cells = new Cell[_size.x, _size.y, _size.z];
+            for (int k = 0; k < _size.z; k++)
             {
-                for (int i = 0; i < size.x; i++)
+                for (int i = 0; i < _size.x; i++)
                 {
-                    for (int j = 0; j < size.y; j++)
+                    for (int j = 0; j < _size.y; j++)
                     {
                         bool act = reader.GetCellStatus();
                         Vector3 v0 = reader.GetCellVertex();
@@ -91,20 +91,20 @@ namespace Engine
                         posData[34] = v6;
                         posData[35] = v1;
 
-                        Cell cell = new Cell(posData, act, device, (float)k / (float)size.z, props[currentProperty].values[i, j, k], props[currentProperty].GetOffset(), props[currentProperty].GetScaling());
-                        cells[i, j, k] = cell;
+                        Cell cell = new Cell(posData, act, _device, (float)k / (float)_size.z, _props[_currentProperty]._values[i, j, k], _props[_currentProperty].GetOffset(), _props[_currentProperty].GetScaling());
+                        _cells[i, j, k] = cell;
                     }
                 }
             }
 
-            for (int k = 0; k < size.z; k++)
+            for (int k = 0; k < _size.z; k++)
             {
-                for (int i = 0; i < size.x; i++)
+                for (int i = 0; i < _size.x; i++)
                 {
-                    for (int j = 0; j < size.y; j++)
+                    for (int j = 0; j < _size.y; j++)
                     {
-                        cells[i, j, k].OffsetAndScaleVertices(-reader.GetGridPosition(), reader.GetGridScale());
-                        cells[i, j, k].CreateBuffer(device);
+                        _cells[i, j, k].OffsetAndScaleVertices(-reader.GetGridPosition(), reader.GetGridScale());
+                        _cells[i, j, k].CreateBuffer(_device);
                     }
                 }
             }
@@ -112,25 +112,25 @@ namespace Engine
         }
         public Grid(Device dev, string path)
         {
-            pathToCells = path;
-            GridReader reader = new GridReader(pathToCells);
-            size = reader.GetGridSize();
-            new PropertyReader("../../Resources/grid.binprops.txt", size, ref props, ref numberOfProperties);
-            device = dev;
+            _pathToCells = path;
+            GridReader reader = new GridReader(_pathToCells);
+            _size = reader.GetGridSize();
+            new PropertyReader("../../Resources/grid.binprops.txt", _size, ref _props, ref _numberOfProperties);
+            _device = dev;
 
             reader.Close();
         }
         public Cell GetCell(int x, int y, int z)
         {
-            return cells[x, y, z];
+            return _cells[x, y, z];
         }
         public Vector3i GetSize()
         {
-            return size;
+            return _size;
         }
         public int GetNumberOfProperties()
         {
-            return numberOfProperties; 
+            return _numberOfProperties; 
         }
     }
 }

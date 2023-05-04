@@ -4,39 +4,39 @@ namespace Engine
 {
     public class CursorInfo
     {
-        Point previousPosition;
-        Point currentPosition;
-        Point positionDelta;
-        float sensitivity = 0.001f;
-        bool isFree = true;
+        Point _previousPosition;
+        Point _currentPosition;
+        Point _positionDelta;
+        float _sensitivity = 0.001f;
+        bool _isFree = true;
         public CursorInfo(Point startingPosition)
         {
-            previousPosition = startingPosition; 
-            currentPosition = startingPosition;
+            _previousPosition = startingPosition; 
+            _currentPosition = startingPosition;
         }
         public void Update(Point newPosition)
         {
-            currentPosition = newPosition;
-            positionDelta = new Point(currentPosition.X - previousPosition.X, currentPosition.Y - previousPosition.Y);
-            previousPosition = currentPosition;
+            _currentPosition = newPosition;
+            _positionDelta = new Point(_currentPosition.X - _previousPosition.X, _currentPosition.Y - _previousPosition.Y);
+            _previousPosition = _currentPosition;
         }
         public Vector2 GetDelta()
         {
-            float x = positionDelta.X * sensitivity;
-            float y = positionDelta.Y * sensitivity;
+            float x = _positionDelta.X * _sensitivity;
+            float y = _positionDelta.Y * _sensitivity;
             return new Vector2(x, y);
         }
         public void Lock()
         {
-            isFree = false;
+            _isFree = false;
         }
         public void Unlock() 
         {
-            isFree = true;
+            _isFree = true;
         }
         public bool IsFree()
         {
-            return isFree;
+            return _isFree;
         }
     }
 }

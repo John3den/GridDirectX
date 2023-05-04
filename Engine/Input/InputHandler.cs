@@ -5,12 +5,12 @@ namespace Engine
 {
     public class InputHandler
     {
-        Camera camera;
-        CursorInfo cursor;
+        Camera _camera;
+        CursorInfo _cursor;
         public InputHandler(XtraForm1 form,Camera cam, CursorInfo cursr)
         {
-            camera = cam;
-            cursor = cursr;
+            _camera = cam;
+            _cursor = cursr;
             form.MouseDown += (target, arg) =>
             {
                 ProcessMouseDown(form, arg);
@@ -28,17 +28,17 @@ namespace Engine
         {
             if (arg.Button == MouseButtons.Right)
             {
-                if (cursor.IsFree())
+                if (_cursor.IsFree())
                 {
-                    cursor.Lock();
+                    _cursor.Lock();
                     Cursor.Hide();
                 }
                 else
                 {
-                    cursor.Unlock();
+                    _cursor.Unlock();
                     Cursor.Show();
                     Cursor.Position = new System.Drawing.Point(form.Size.Width / 2, form.Size.Height / 2);
-                    cursor.Update(Cursor.Position);
+                    _cursor.Update(Cursor.Position);
                 }
             }
         }
@@ -61,7 +61,7 @@ namespace Engine
         {
             if (arg.KeyCode == Keys.F)
             {
-                camera.ChangeFocus();
+                _camera.ChangeFocus();
             }
             if (arg.KeyCode == Keys.W)
                 KeyboardState.KeyDown(Keys.W);

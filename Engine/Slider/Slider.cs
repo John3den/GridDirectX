@@ -6,47 +6,47 @@ namespace Engine
 {
     public class Slider
     {
-        bool isEnabledX = true;
-        bool isEnabledY = true;
-        bool isEnabledZ = true;
-        bool isFullGrid = true;
-        int currentX = 3;
-        int currentY = 3;
-        int currentZ = 3;
-        TrackBar scrollX;
-        TrackBar scrollY;
-        TrackBar scrollZ;
-        CheckBox CheckX;
-        CheckBox CheckY;
-        CheckBox CheckZ;
-        CheckBox CheckFull;
+        bool _isEnabledX = true;
+        bool _isEnabledY = true;
+        bool _isEnabledZ = true;
+        bool _isFullGrid = true;
+        int _currentX = 3;
+        int _currentY = 3;
+        int _currentZ = 3;
+        TrackBar _scrollX;
+        TrackBar _scrollY;
+        TrackBar _scrollZ;
+        CheckBox _CheckX;
+        CheckBox _CheckY;
+        CheckBox _CheckZ;
+        CheckBox _CheckFull;
         public Slider(XtraForm1 form,Grid grid)
         {
-            scrollX = form.GetTrackBar1();
-            scrollY = form.GetTrackBar2();
-            scrollZ = form.GetTrackBar3();
-            CheckX = form.GetCheck1();
-            CheckY = form.GetCheck2();
-            CheckZ = form.GetCheck3();
-            CheckFull = form.GetFullCheck();
+            _scrollX = form.GetTrackBar1();
+            _scrollY = form.GetTrackBar2();
+            _scrollZ = form.GetTrackBar3();
+            _CheckX = form.GetCheck1();
+            _CheckY = form.GetCheck2();
+            _CheckZ = form.GetCheck3();
+            _CheckFull = form.GetFullCheck();
 
-            scrollX.Properties.Maximum = grid.GetSize().x - 1;
-            scrollY.Properties.Maximum = grid.GetSize().y - 1;
-            scrollZ.Properties.Maximum = grid.GetSize().z - 1;
+            _scrollX.Properties.Maximum = grid.GetSize().x - 1;
+            _scrollY.Properties.Maximum = grid.GetSize().y - 1;
+            _scrollZ.Properties.Maximum = grid.GetSize().z - 1;
         }
         public bool IncludesCell(int x, int y, int z)
         {
-            return (isFullGrid) || ((z == currentZ && isEnabledZ) || (y == currentY && isEnabledY) || (x == currentX && isEnabledX));
+            return (_isFullGrid) || ((z == _currentZ && _isEnabledZ) || (y == _currentY && _isEnabledY) || (x == _currentX && _isEnabledX));
         }
         public void Update()
         {
-            currentX = scrollX.Value;
-            currentY = scrollY.Value;
-            currentZ = scrollZ.Value;
-            isEnabledX = CheckX.Checked;
-            isEnabledY = CheckY.Checked;
-            isEnabledZ = CheckZ.Checked;
-            isFullGrid = CheckFull.Checked;
+            _currentX = _scrollX.Value;
+            _currentY = _scrollY.Value;
+            _currentZ = _scrollZ.Value;
+            _isEnabledX = _CheckX.Checked;
+            _isEnabledY = _CheckY.Checked;
+            _isEnabledZ = _CheckZ.Checked;
+            _isFullGrid = _CheckFull.Checked;
         }
     }
 }

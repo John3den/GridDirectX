@@ -22,13 +22,13 @@ namespace Engine
 {
     public class RenderLoopControl
     {
-        Stopwatch frameTimer = new Stopwatch();
         const int THREAD_COUNT = 4;
-        Camera camera;
-        public static float deltaTime;
-        CursorInfo cursor;
-        Renderer renderer = new Renderer();
-        InputHandler inputHandler;
+        Stopwatch _frameTimer = new Stopwatch();
+        Camera _camera;
+        public static float _deltaTime;
+        CursorInfo _cursor;
+        Renderer _renderer = new Renderer();
+        InputHandler _inputHandler;
         Grid grid;
         public void ChangeProperty(LabelControl labelControl,bool next)
         {
@@ -42,7 +42,7 @@ namespace Engine
                 grid.CurrentProperty--;
                 grid.GenerateCells();
             }
-            labelControl.Text = grid.props[grid.CurrentProperty].label;
+            labelControl.Text = grid._props[grid.CurrentProperty]._label;
         }
         public void Run()
         {
@@ -113,11 +113,11 @@ namespace Engine
             grid.GenerateCells();
             Slider slider = new Slider(form, grid);
 
-            camera = new Camera();
+            _camera = new Camera();
 
             form.StartPosition = FormStartPosition.CenterScreen;
-            cursor = new CursorInfo(Cursor.Position);
-            inputHandler = new InputHandler(form,camera, cursor);
+            _cursor = new CursorInfo(Cursor.Position);
+            _inputHandler = new InputHandler(form,_camera, _cursor);
             // Create Constant Buffer 
             var staticContantBuffer = new Buffer(device, Utilities.SizeOf<Matrix>(), ResourceUsage.Default, BindFlags.ConstantBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
             var dynamicConstantBuffer = new Buffer(device, Utilities.SizeOf<Matrix>(), ResourceUsage.Dynamic, BindFlags.ConstantBuffer, CpuAccessFlags.Write, ResourceOptionFlags.None, 0);
@@ -183,7 +183,7 @@ namespace Engine
 
                 var rotateMatrix = Matrix.Scaling(1.0f / 3f);
                 Matrix worldViewProj;
-                view = camera.GetView();
+                view = _camera.GetView();
                 //view *=Matrix.RotationY(time);
                 var viewProj = Matrix.Multiply(view, proj);
                 worldViewProj = rotateMatrix * viewProj;
@@ -198,7 +198,7 @@ namespace Engine
                         {
                             if (slider.IncludesCell(x, y, z))
                             {
-                                renderer.DrawCell(renderingContext, dynamicConstantBuffer, worldViewProj, grid.GetCell(x, y, z).getVert());
+                                _renderer.DrawCell(renderingContext, dynamicConstantBuffer, worldViewProj, grid.GetCell(x, y, z).getVert());
                             }
                         }
                     }
@@ -229,16 +229,16 @@ namespace Engine
 
             RenderLoop.Run(form, () =>
             {
-                deltaTime = (float)frameTimer.ElapsedMilliseconds/1000;
-                frameTimer.Restart();
-                if (!cursor.IsFree())
+                _deltaTime = (float)_frameTimer.ElapsedMilliseconds/1000;
+                _frameTimer.Restart();
+                if (!_cursor.IsFree())
                 {
-                    cursor.Update(Cursor.Position);
-                    camera.Rotate(new Vector2(cursor.GetDelta().Y, cursor.GetDelta().X));
+                    _cursor.Update(Cursor.Position);
+                    _camera.Rotate(new Vector2(_cursor.GetDelta().Y, _cursor.GetDelta().X));
                     Cursor.Position = new System.Drawing.Point(form.Size.Width / 2, form.Size.Height / 2);
-                    cursor.Update(Cursor.Position);
+                    _cursor.Update(Cursor.Position);
                 }
-                camera.Update();
+                _camera.Update();
 
                 slider.Update();
                 fpsCounter++;

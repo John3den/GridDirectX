@@ -6,67 +6,67 @@ namespace Engine
 {
     public class Camera
     {
-        Vector3 lookDirection;
-        Vector3 leftDirection;
-        Vector3 position;
-        Vector3 upDirection;
-        Matrix view;
-        float pitch = 0;
-        float yaw = 0;
-        bool focused = true;
+        Vector3 _lookDirection;
+        Vector3 _leftDirection;
+        Vector3 _position;
+        Vector3 _upDirection;
+        Matrix _view;
+        float _pitch = 0;
+        float _yaw = 0;
+        bool _focused = true;
         public Camera()
         {
-            leftDirection = new Vector3((float)Math.Sin(yaw + Math.PI / 2) * (float)Math.Sin(pitch), (float)Math.Cos(pitch), (float)Math.Cos(yaw + Math.PI / 2) * (float)Math.Sin(pitch));
-            lookDirection = new Vector3((float)Math.Sin(yaw) * (float)Math.Sin(pitch), (float)Math.Cos(pitch), (float)Math.Cos(yaw) * (float)Math.Sin(pitch));
-            upDirection = new Vector3((float)Math.Sin(yaw) * (float)Math.Sin(pitch + Math.PI / 2), (float)Math.Cos(pitch + Math.PI / 2), (float)Math.Cos(yaw) * (float)Math.Sin(pitch + Math.PI / 2));
-            view = Matrix.LookAtLH(position, position + lookDirection, upDirection);
-            position = new Vector3(0, 0, -3);
+            _leftDirection = new Vector3((float)Math.Sin(_yaw + Math.PI / 2) * (float)Math.Sin(_pitch), (float)Math.Cos(_pitch), (float)Math.Cos(_yaw + Math.PI / 2) * (float)Math.Sin(_pitch));
+            _lookDirection = new Vector3((float)Math.Sin(_yaw) * (float)Math.Sin(_pitch), (float)Math.Cos(_pitch), (float)Math.Cos(_yaw) * (float)Math.Sin(_pitch));
+            _upDirection = new Vector3((float)Math.Sin(_yaw) * (float)Math.Sin(_pitch + Math.PI / 2), (float)Math.Cos(_pitch + Math.PI / 2), (float)Math.Cos(_yaw) * (float)Math.Sin(_pitch + Math.PI / 2));
+            _view = Matrix.LookAtLH(_position, _position + _lookDirection, _upDirection);
+            _position = new Vector3(0, 0, -3);
         }
         public void Update()
         {
             float speed = 1f;
             if (KeyboardState.IsPressed(Keys.W))
-                position += lookDirection * speed * RenderLoopControl.deltaTime;
+                _position += _lookDirection * speed * RenderLoopControl._deltaTime;
             if (KeyboardState.IsPressed(Keys.S))
-                position -= lookDirection * speed * RenderLoopControl.deltaTime;
+                _position -= _lookDirection * speed * RenderLoopControl._deltaTime;
             if (KeyboardState.IsPressed(Keys.Q))
-                position.Y += speed * RenderLoopControl.deltaTime;
+                _position.Y += speed * RenderLoopControl._deltaTime;
             if (KeyboardState.IsPressed(Keys.E))
-                position.Y -= speed * RenderLoopControl.deltaTime;
+                _position.Y -= speed * RenderLoopControl._deltaTime;
             if (KeyboardState.IsPressed(Keys.A))
             {
-                    position += leftDirection * speed * RenderLoopControl.deltaTime;
+                    _position += _leftDirection * speed * RenderLoopControl._deltaTime;
             }
             if (KeyboardState.IsPressed(Keys.D))
             {
-                    position -= leftDirection * speed * RenderLoopControl.deltaTime;
+                    _position -= _leftDirection * speed * RenderLoopControl._deltaTime;
             }
-            if (focused)
-                lookDirection = -position;
+            if (_focused)
+                _lookDirection = -_position;
             else
-                lookDirection = new Vector3((float)Math.Sin(yaw) * (float)Math.Sin(pitch), (float)Math.Cos(pitch), (float)Math.Cos(yaw) * (float)Math.Sin(pitch )); 
-            leftDirection = Vector3.Cross(lookDirection, Vector3.Up);
-            view = Matrix.LookAtLH(position, position + lookDirection, Vector3.UnitY);
+                _lookDirection = new Vector3((float)Math.Sin(_yaw) * (float)Math.Sin(_pitch), (float)Math.Cos(_pitch), (float)Math.Cos(_yaw) * (float)Math.Sin(_pitch )); 
+            _leftDirection = Vector3.Cross(_lookDirection, Vector3.Up);
+            _view = Matrix.LookAtLH(_position, _position + _lookDirection, Vector3.UnitY);
         }
         public void UpdView()
         {
-            view = Matrix.LookAtLH(position, position + lookDirection, Vector3.UnitY);
+            _view = Matrix.LookAtLH(_position, _position + _lookDirection, Vector3.UnitY);
         }
         public void Unfocus()
         {
-            Vector3 normal = Vector3.Normalize(-position);
-            pitch = (float) (Math.Acos(normal.Y)  );
+            Vector3 normal = Vector3.Normalize(-_position);
+            _pitch = (float) (Math.Acos(normal.Y)  );
             if(normal.Z>0)
-                yaw =  (float)Math.Atan(normal.X/ normal.Z);
+                _yaw =  (float)Math.Atan(normal.X/ normal.Z);
             else
-                yaw = (float)Math.Atan(normal.X / normal.Z) + (float)Math.PI;
-            Console.WriteLine(pitch + " " + yaw);
+                _yaw = (float)Math.Atan(normal.X / normal.Z) + (float)Math.PI;
+            Console.WriteLine(_pitch + " " + _yaw);
 
         }
         public void ChangeFocus()
         {
-            focused = !focused;
-            if (!focused)
+            _focused = !_focused;
+            if (!_focused)
             {
                 Unfocus();
             }
@@ -75,26 +75,26 @@ namespace Engine
         {
             float pitchShift = rotationVector.X;
             float yawShift = rotationVector.Y;
-            pitch += pitchShift;
-            yaw += yawShift;
-            if (pitch < 0)
+            _pitch += pitchShift;
+            _yaw += yawShift;
+            if (_pitch < 0)
             {
-                pitch = 0.0001f;
+                _pitch = 0.0001f;
             }
-            if (pitch > Math.PI)
+            if (_pitch > Math.PI)
             {
-                pitch = (float)Math.PI - 0.0001f;
+                _pitch = (float)Math.PI - 0.0001f;
             }
             Update();
         }
         public void Move(Vector3 movementVector)
         {
-            position += movementVector;
+            _position += movementVector;
             Update();
         }
         public Matrix GetView()
         {
-            return view;
+            return _view;
         }
     }
 }

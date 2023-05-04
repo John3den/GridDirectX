@@ -5,26 +5,26 @@ namespace Engine
 {
     public class Property
     {
-        public float[,,] values;
-        public Vector3i size;
-        float scaling;
-        float offset;
-        public string label;
+        public float[,,] _values;
+        public Vector3i _size;
+        float _scaling;
+        float _offset;
+        public string _label;
         public Property(Vector3i s, float[,,] data,float propertyOffset, float propertyScale, string propertyLabel)
         {
-            scaling = propertyScale;
-            offset = propertyOffset;
-            values = data;
-            size = s;
-            label = propertyLabel; 
+            _scaling = propertyScale;
+            _offset = propertyOffset;
+            _values = data;
+            _size = s;
+            _label = propertyLabel; 
         }
         public float GetOffset()
         {
-            return offset;
+            return _offset;
         }
         public float GetScaling()
         {   
-            return scaling;
+            return _scaling;
         }
     }
 }

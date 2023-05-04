@@ -8,6 +8,7 @@ namespace Engine
     {
         private const int N_OF_ATTRIBS = 3;
         private const int N_OF_VERTICES = 36;
+        Vector4 _colorOffset = new Vector4(0.5f, 0.3f, 0.7f, 0.0f);
         static Vector4[] _vertexLocalPositions;
         Buffer _buffer;
         Vector4[] _vertData = new Vector4[N_OF_VERTICES * N_OF_ATTRIBS];
@@ -22,7 +23,7 @@ namespace Engine
             property /= scaling;
             for(int i=0;i< N_OF_VERTICES; i++)
             {
-                Vector4 vertCol = new Vector4(property/2 + 0.5f, 0.3f, 0.7f - property/2, 1.0f);
+                Vector4 vertCol = new Vector4(property/2,0, - property/2, 1.0f) + _colorOffset;
                 _vertData[i * N_OF_ATTRIBS] = new Vector4(pos[i], 1.0f);
                 _vertData[i * N_OF_ATTRIBS + 1] = vertCol;
                 _vertData[i * N_OF_ATTRIBS + 2] = _vertexLocalPositions[i];
