@@ -50,34 +50,43 @@ namespace Engine
         {
             if (arg.KeyCode == Keys.W)
                 KeyboardState.KeyUp(Keys.W);
+
             if (arg.KeyCode == Keys.S)
                 KeyboardState.KeyUp(Keys.S);
+
             if (arg.KeyCode == Keys.ShiftKey)
                 KeyboardState.KeyUp(Keys.ShiftKey);
+
             if (arg.KeyCode == Keys.Space)
                 KeyboardState.KeyUp(Keys.Space);
+
             if (arg.KeyCode == Keys.A)
                 KeyboardState.KeyUp(Keys.A);
+
             if (arg.KeyCode == Keys.D)
                 KeyboardState.KeyUp(Keys.D);
         }
 
         public static void ProcessKeyDown(KeyEventArgs arg)
         {
-                if (arg.KeyCode == Keys.F)
-            {
+            if (arg.KeyCode == Keys.F)
                 _camera.ChangeFocus();
-            }
+
             if (arg.KeyCode == Keys.W)
                 KeyboardState.KeyDown(Keys.W);
+
             if (arg.KeyCode == Keys.S)
                 KeyboardState.KeyDown(Keys.S);
+
             if (arg.KeyCode == Keys.ShiftKey)
                 KeyboardState.KeyDown(Keys.ShiftKey);
+
             if (arg.KeyCode == Keys.Space)
                 KeyboardState.KeyDown(Keys.Space);
+
             if (arg.KeyCode == Keys.A)
                 KeyboardState.KeyDown(Keys.A);
+
             if (arg.KeyCode == Keys.D)
                 KeyboardState.KeyDown(Keys.D);
         }

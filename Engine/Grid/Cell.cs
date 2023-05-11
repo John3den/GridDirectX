@@ -27,11 +27,11 @@ namespace Engine
             }
             property -= offset;
             property /= scaling;
-            for(int i=0;i< N_OF_VERTICES; i++)
+            for (int i = 0; i < N_OF_VERTICES; i++) 
             {
-                float blue = 0.8f -  property;
+                float blue = 0.8f - property;
                 float green = 0.8f - Math.Abs(property - 0.5f) * 2.0f;
-                float red = 1 * property+0.1f;
+                float red = 1 * property + 0.1f;
 
                 Vector4 vertCol = new Vector4(red, green, blue, 1.0f);
                 _vertData[i * N_OF_ATTRIBS] = new Vector4(pos[i], 1.0f);
@@ -42,10 +42,12 @@ namespace Engine
 
         public void OffsetAndScaleVertices(Vector3 offset, Vector3 scale)
         {
-            for (int i = 0; i < N_OF_VERTICES; i++)
+            for (int i = 0; i < N_OF_VERTICES; i++) 
             {
-                _vertData[i * N_OF_ATTRIBS] = new Vector4(_vertData[i * N_OF_ATTRIBS].X/scale.X, _vertData[i * N_OF_ATTRIBS].Y / scale.Y, _vertData[i * N_OF_ATTRIBS].Z / scale.Z,1.0f);
-                _vertData[i * N_OF_ATTRIBS] += new Vector4(offset.X / scale.X, offset.Y / scale.Y, offset.Z / scale.Z, 0.0f); 
+                float x = (_vertData[i * N_OF_ATTRIBS].X + offset.X) / scale.X;
+                float y = (_vertData[i * N_OF_ATTRIBS].Y + offset.Y) / scale.Y;
+                float z = (_vertData[i * N_OF_ATTRIBS].Z + offset.Z) / scale.Z;
+                _vertData[i * N_OF_ATTRIBS] = new Vector4(x, y, z, 1.0f);
             }
         }
 

@@ -14,7 +14,7 @@ namespace Engine
             foreach (string line in lines)
             {
                 string currentFloat = "";
-                for (int counter = 0; counter < line.Length; counter++)
+                for (int counter = 0; counter < line.Length; counter++) 
                 {
 
                     if (line[counter] == 'f')

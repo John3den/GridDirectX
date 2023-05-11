@@ -16,6 +16,7 @@ namespace Engine
         {
             _scaling = propertyScale;
             _offset = propertyOffset;
+
             Values = data;
             Size = s;
             Label = propertyLabel; 

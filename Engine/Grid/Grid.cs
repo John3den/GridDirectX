@@ -40,6 +40,7 @@ namespace Engine
                               0, 3, 7, 7, 4, 0,  2, 1, 6, 5, 6, 1 };
         // corner 0 -> corner 1 -> corner 2 -> corner 3
         int[] vertexReadOrder = { 0, 4, 1, 5, 2, 6, 3, 7 };
+
         public void GenerateCells()
         {
             GridReader reader = new GridReader(_pathToCells);
@@ -67,8 +68,10 @@ namespace Engine
                         }
 
                         float normalizedCellYPosition = (float)k / (float)_size.z;
-                        Cell cell = new Cell(posData, act, _device, normalizedCellYPosition, Properties[_currentProperty].Values[i, j, k], Properties[_currentProperty].GetOffset(), Properties[_currentProperty].GetScaling());
-                        _cells[i, j, k] = cell;
+                        float propertyValue = Properties[_currentProperty].Values[i, j, k];
+                        float propertyOffset = Properties[_currentProperty].GetOffset();
+                        float propertyScaling = Properties[_currentProperty].GetScaling();
+                        _cells[i, j, k] = new Cell(posData, act, _device, normalizedCellYPosition, propertyValue, propertyOffset, propertyScaling);
                     }
                 }
             }
@@ -89,13 +92,17 @@ namespace Engine
 
         public Grid(Device dev, XtraForm1 form, string path)
         {
-            _pathToCells = path;
-            GridReader gridReader = new GridReader(_pathToCells);
+            GridReader gridReader = new GridReader(path);
             _size = gridReader.GetGridSize();
+
             PropertyReader propReader = new PropertyReader("../../Resources/grid.binprops.txt", _size, ref _numberOfProperties);
             Properties = propReader.ReadProperties();
+
+            _pathToCells = path;
             _device = dev;
+
             Slider = new Slider(form, this);
+
             gridReader.Close();
         }
 
