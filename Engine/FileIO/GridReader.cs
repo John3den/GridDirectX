@@ -1,5 +1,6 @@
 using DevExpress.XtraReports.Design;
 using SharpDX;
+using System;
 using System.IO;
 using System.Text;
 namespace Engine
@@ -43,31 +44,14 @@ namespace Engine
             }
             else
             {
-                if(x > _mostCorner.X)
-                {
-                    _mostCorner.X = x;
-                }
-                if(x < _leastCorner.X)
-                {
-                    _leastCorner.X = x;
-                }
-                if(y > _mostCorner.Y)
-                {
-                    _mostCorner.Y = y;
-                }
-                if(y < _leastCorner.Y)
-                {
-                    _leastCorner.Y = y;
-                }
-                if(z > _mostCorner.Z)
-                {
-                    _mostCorner.Z = z;
-                }
-                if(z < _leastCorner.Z)
-                {
-                    _leastCorner.Z = z;
-                }
+                _mostCorner.X = Math.Max(_mostCorner.X, x);
+                _leastCorner.X = Math.Min(_leastCorner.X, x);
 
+                _mostCorner.Y = Math.Max(_mostCorner.Y, y);
+                _leastCorner.Y = Math.Min(_leastCorner.Y, y);
+
+                _mostCorner.Z = Math.Max(_mostCorner.Z, z);
+                _leastCorner.Z = Math.Min(_leastCorner.Z, z);
             }
             return cellVertexCoordinates;
         }
