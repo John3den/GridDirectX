@@ -57,14 +57,9 @@ namespace Engine
             // Create Device and SwapChain 
             Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.None, desc, out device, out swapChain);
             imm = device.ImmediateContext;
-            
-            //generate contexts
-            deferredContexts = new DeviceContext[THREAD_COUNT];
-            for (int i = 0; i < deferredContexts.Length; i++)
-                deferredContexts[i] = new DeviceContext(device);
 
-            contextPerThread = new DeviceContext[Renderer.THREAD_COUNT];
-            contextPerThread[0] = imm;
+            //generate contexts
+            GenerateContexts();
 
             //create backbubuffer and renderview
             var factory = swapChain.GetParent<Factory>();
@@ -72,27 +67,26 @@ namespace Engine
 
             var backBuffer = Texture2D.FromSwapChain<Texture2D>(swapChain, 0);
             renderView = new RenderTargetView(device, backBuffer);
-            
-            //Create vertex shader
-            var bytecode = ShaderBytecode.CompileFromFile("../../Resources/MultiCube.fx", "VS", "vs_4_0");
-            vertexShader = new VertexShader(device, bytecode);
 
-            layout = new InputLayout(device, ShaderSignature.GetInputSignature(bytecode), new[]
-{
-                        new InputElement("POSITION", 0, Format.R32G32B32A32_Float, 0, 0),
-                        new InputElement("COLOR", 0, Format.R32G32B32A32_Float, 16, 0),
-                        new InputElement("LOCALPOS", 0, Format.R32G32B32A32_Float, 32, 0)
-                    });
-
-            //Create pixel shader
-            bytecode.Dispose();
-            bytecode = ShaderBytecode.CompileFromFile("../../Resources/MultiCube.fx", "PS", "ps_4_0");
-            pixelShader = new PixelShader(device, bytecode);
-            bytecode.Dispose();
-
-
+            LoadShaders();
 
             proj = Matrix.PerspectiveFovLH((float)Math.PI / 4.0f, form.ClientSize.Width / (float)form.ClientSize.Height, 0.1f, 100.0f);
+
+            SetupBuffers(form);
+        }
+
+        public void GenerateContexts() 
+        {
+            deferredContexts = new DeviceContext[THREAD_COUNT];
+            for (int i = 0; i < deferredContexts.Length; i++)
+                deferredContexts[i] = new DeviceContext(device);
+
+            contextPerThread = new DeviceContext[Renderer.THREAD_COUNT];
+            contextPerThread[0] = imm;
+        }
+
+        public void SetupBuffers(XtraForm1 form)
+        {
             staticContantBuffer = new Buffer(device, Utilities.SizeOf<Matrix>(), ResourceUsage.Default, BindFlags.ConstantBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
             dynamicConstantBuffer = new Buffer(device, Utilities.SizeOf<Matrix>(), ResourceUsage.Dynamic, BindFlags.ConstantBuffer, CpuAccessFlags.Write, ResourceOptionFlags.None, 0);
 
@@ -109,7 +103,28 @@ namespace Engine
                 CpuAccessFlags = CpuAccessFlags.None,
                 OptionFlags = ResourceOptionFlags.None
             });
+
             depthView = new DepthStencilView(device, depthBuffer);
+        }
+
+        public void LoadShaders()
+        {
+            //Create vertex shader
+            var bytecode = ShaderBytecode.CompileFromFile("../../Resources/MultiCube.fx", "VS", "vs_4_0");
+            vertexShader = new VertexShader(device, bytecode);
+
+            layout = new InputLayout(device, ShaderSignature.GetInputSignature(bytecode), new[]
+{
+                        new InputElement("POSITION", 0, Format.R32G32B32A32_Float, 0, 0),
+                        new InputElement("COLOR", 0, Format.R32G32B32A32_Float, 16, 0),
+                        new InputElement("LOCALPOS", 0, Format.R32G32B32A32_Float, 32, 0)
+                    });
+
+            //Create pixel shader
+            bytecode.Dispose();
+            bytecode = ShaderBytecode.CompileFromFile("../../Resources/MultiCube.fx", "PS", "ps_4_0");
+            pixelShader = new PixelShader(device, bytecode);
+            bytecode.Dispose();
         }
 
         public void SetupPipeline()
