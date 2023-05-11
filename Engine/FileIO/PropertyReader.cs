@@ -22,15 +22,20 @@ namespace Engine
         public Property[] ReadProperties()
         {
             Property[] props = new Property[_numberOfProperties];
-            int offset = 1;// first two lines
+
+            // First line and names of properties
+            int offset = 1; 
             int valuesRead = 0;
+
             for (int m = 0; m < _numberOfProperties; m++)
             {
                 string PropertyLabel = "property";
+
                 float minProp = 0;
                 float maxProp = 0;
-                float[,,] data;
-                data = new float[_gridDimensions.x, _gridDimensions.y, _gridDimensions.z];
+
+                float[,,] data = new float[_gridDimensions.x, _gridDimensions.y, _gridDimensions.z];
+
                 for (int i = 0; i < _gridDimensions.x; i++)
                 {
                     for (int j = 0; j < _gridDimensions.y; j++)
@@ -42,6 +47,7 @@ namespace Engine
                                 PropertyLabel = _fileLines[valuesRead + offset];
                                 offset++;
                             }
+
                             data[i, j, k] = Convert.ToSingle(_fileLines[valuesRead + offset], CultureInfo.InvariantCulture);
 
                             if (valuesRead == 0)
@@ -56,14 +62,16 @@ namespace Engine
                             }
 
                             valuesRead++;
-
                         }
                     }
                 }
-                float propscale = maxProp - minProp;
-                if (propscale == 0) propscale = 1;
-                float propoffset = minProp;
-                props[m] = new Property(_gridDimensions, data, propoffset, propscale, PropertyLabel);
+
+                float propScale = maxProp - minProp;
+                if (propScale == 0) propScale = 1;
+
+                float propOffset = minProp;
+
+                props[m] = new Property(_gridDimensions, data, propOffset, propScale, PropertyLabel);
             }
             return props;
         }
