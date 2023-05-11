@@ -1,8 +1,8 @@
-using DevExpress.XtraReports.Design;
 using SharpDX;
 using System;
 using System.IO;
 using System.Text;
+
 namespace Engine
 {
     public class GridReader

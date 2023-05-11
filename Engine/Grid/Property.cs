@@ -1,6 +1,3 @@
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-
 namespace Engine
 {
     public class Property

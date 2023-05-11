@@ -1,10 +1,9 @@
-using DevExpress.Utils.Html;
-using DevExpress.XtraEditors;
 using SharpDX;
 using SharpDX.Direct3D11;
 using System;
 using Buffer = SharpDX.Direct3D11.Buffer;
 using Device = SharpDX.Direct3D11.Device;
+
 namespace Engine
 {
     public class Cell
@@ -18,7 +17,7 @@ namespace Engine
 
         Buffer _buffer;
 
-        public Cell(Vector3[] pos, bool isActiveByDefault, Device device, float property)
+        public Cell(Vector3[] positionData, float property)
         {
             if(_vertexLocalPositions == null)
             {
@@ -33,7 +32,7 @@ namespace Engine
                 float red = 1 * property + 0.1f;
 
                 Vector4 vertCol = new Vector4(red, green, blue, 1.0f);
-                _vertData[i * N_OF_ATTRIBS] = new Vector4(pos[i], 1.0f);
+                _vertData[i * N_OF_ATTRIBS] = new Vector4(positionData[i], 1.0f);
                 _vertData[i * N_OF_ATTRIBS + 1] = vertCol;
                 _vertData[i * N_OF_ATTRIBS + 2] = _vertexLocalPositions[i];
             }

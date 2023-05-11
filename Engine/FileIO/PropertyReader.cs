@@ -1,9 +1,7 @@
-using DevExpress.Utils.Extensions;
-using SharpDX;
-using SharpDX.MediaFoundation;
 using System;
 using System.Globalization;
 using System.IO;
+
 namespace Engine
 {
     public class PropertyReader

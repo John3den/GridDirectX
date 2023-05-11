@@ -1,7 +1,7 @@
 using SharpDX;
-using SharpDX.Direct3D9;
 using System;
 using System.Windows.Forms;
+
 namespace Engine
 {
     public class Camera

@@ -1,12 +1,8 @@
 using DevExpress.Data;
 using DevExpress.XtraEditors;
-using DevExpress.XtraPrinting.BarCode;
 using GridRender;
 using SharpDX;
 using SharpDX.Direct3D11;
-using System;
-using System.IO;
-using System.Windows.Forms;
 
 namespace Engine
 {
@@ -76,7 +72,7 @@ namespace Engine
                         // Calculate normalized( in the range [0,1] ) property value
                         float normalizedPropertyValue = NormalizePropertyValue(Properties[_currentProperty].Values[i, j, k]);
 
-                        _cells[i, j, k] = new Cell(posData, act, _device, normalizedPropertyValue);
+                        _cells[i, j, k] = new Cell(posData,  normalizedPropertyValue);
                     }
                 }
             }

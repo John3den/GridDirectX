@@ -1,14 +1,10 @@
 using SharpDX;
 using SharpDX.Direct3D11;
-using SharpDX.MediaFoundation;
-using System.Windows.Forms;
 using System;
 using Buffer = SharpDX.Direct3D11.Buffer;
 using MapFlags = SharpDX.Direct3D11.MapFlags;
 using System.Threading.Tasks;
-using DevExpress.Utils;
 using GridRender;
-using DevExpress.XtraBars.Docking2010.Views.WindowsUI;
 using SharpDX.Direct3D;
 using SharpDX.D3DCompiler;
 using SharpDX.DXGI;

@@ -1,25 +1,10 @@
-using System;
 using System.Diagnostics;
-using System.Drawing;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using GridRender;
 using SharpDX;
-using SharpDX.D3DCompiler;
-using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using SharpDX.Windows;
-using Buffer = SharpDX.Direct3D11.Buffer;
-using Color = SharpDX.Color;
-
-using MapFlags = SharpDX.Direct3D11.MapFlags;
-using Engine;
-using CheckBox = DevExpress.XtraEditors.CheckEdit;
-using DevExpress.XtraEditors;
-using SharpDX.MediaFoundation;
-using DevExpress.XtraBars.Docking2010.Views.WindowsUI;
-
 
 namespace Engine
 {

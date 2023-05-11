@@ -1,5 +1,6 @@
 using SharpDX;
 using Point = System.Drawing.Point;
+
 namespace Engine
 {
     public class CursorInfo
