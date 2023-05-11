@@ -11,6 +11,7 @@ namespace Engine
         string[] _fileLines;
         int _numberOfProperties;
         Vector3i _gridDimensions;
+
         public PropertyReader(string path, Vector3i dimensions, ref int numberOfProperties)
         {
             _gridDimensions = dimensions; 

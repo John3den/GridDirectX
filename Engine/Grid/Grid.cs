@@ -27,17 +27,19 @@ namespace Engine
             get { return _currentProperty; }
         }
 
+        Device _device;
         Vector3i _size;
         Cell[,,] _cells;
+
         int _numberOfProperties; 
         int _currentProperty = 0;
         string _pathToCells;
-        Device _device;
 
         // top -> bottom -> front -> back -> left -> right
         int[] vertexOrder = { 0, 1, 3, 2, 3, 1,  4, 7, 5, 6, 5, 7,
                               1, 0, 5, 4, 5, 0,  3, 2, 6, 7, 3, 6,
                               0, 3, 7, 7, 4, 0,  2, 1, 6, 5, 6, 1 };
+
         // corner 0 -> corner 1 -> corner 2 -> corner 3
         int[] vertexReadOrder = { 0, 4, 1, 5, 2, 6, 3, 7 };
 
@@ -72,14 +74,9 @@ namespace Engine
                         }
 
                         // Calculate normalized( in the range [0,1] ) property value
-                        float propertyValue = Properties[_currentProperty].Values[i, j, k];
-                        float propertyOffset = Properties[_currentProperty].GetOffset();
-                        float propertyScaling = Properties[_currentProperty].GetScaling();
+                        float normalizedPropertyValue = NormalizePropertyValue(Properties[_currentProperty].Values[i, j, k]);
 
-                        propertyValue -= propertyOffset;
-                        propertyValue /= propertyScaling;
-
-                        _cells[i, j, k] = new Cell(posData, act, _device, propertyValue);
+                        _cells[i, j, k] = new Cell(posData, act, _device, normalizedPropertyValue);
                     }
                 }
             }
@@ -112,6 +109,17 @@ namespace Engine
             Slider = new Slider(form, this);
 
             gridReader.Close();
+        }
+
+        public float NormalizePropertyValue(float propertyValue)
+        {
+            float propertyOffset = Properties[_currentProperty].GetOffset();
+            float propertyScaling = Properties[_currentProperty].GetScaling();
+
+            propertyValue -= propertyOffset;
+            propertyValue /= propertyScaling;
+
+            return propertyValue;
         }
 
         public Cell GetCell(int x, int y, int z)

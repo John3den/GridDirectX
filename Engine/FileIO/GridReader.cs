@@ -12,6 +12,7 @@ namespace Engine
         Vector3 _mostCorner;
         Vector3 _leastCorner;
         bool _readFirstVertex = false;
+
         public Vector3i GetGridSize()
         {
             int x = _reader.ReadInt32();
@@ -36,6 +37,7 @@ namespace Engine
             float y = _reader.ReadSingle();
             float z = _reader.ReadSingle();
             Vector3 cellVertexCoordinates = new Vector3(x, y, z);
+
             if (!_readFirstVertex)
             {
                 _mostCorner = cellVertexCoordinates;
