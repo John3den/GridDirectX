@@ -12,13 +12,13 @@ namespace Engine
         float _scaling;
         float _offset;
 
-        public Property(Vector3i s, float[,,] data, float propertyOffset, float propertyScale, string propertyLabel)
+        public Property(Vector3i size, float[,,] data, float propertyOffset, float propertyScale, string propertyLabel)
         {
             _scaling = propertyScale;
             _offset = propertyOffset;
 
             Values = data;
-            Size = s;
+            Size = size;
             Label = propertyLabel; 
         }
 

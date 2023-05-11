@@ -18,15 +18,14 @@ namespace Engine
 
         Buffer _buffer;
 
-        public Cell(Vector3[] pos, bool isActiveByDefault, Device device, float y, float property, float offset, float scaling)
+        public Cell(Vector3[] pos, bool isActiveByDefault, Device device, float property)
         {
             if(_vertexLocalPositions == null)
             {
                 _vertexLocalPositions = new Vector4[N_OF_VERTICES];
                 VertexReader.LoadVertices(_vertexLocalPositions, "../../Resources/CellLocalCoordinates.txt");
             }
-            property -= offset;
-            property /= scaling;
+
             for (int i = 0; i < N_OF_VERTICES; i++) 
             {
                 float blue = 0.8f - property;

@@ -44,8 +44,10 @@ namespace Engine
         public void GenerateCells()
         {
             GridReader reader = new GridReader(_pathToCells);
+
             _size = reader.GetGridSize();
             _cells = new Cell[_size.x, _size.y, _size.z];
+
             for (int k = 0; k < _size.z; k++)
             {
                 for (int i = 0; i < _size.x; i++)
@@ -55,6 +57,7 @@ namespace Engine
                         bool act = reader.GetCellStatus();
                         Vector3[] currentCellVertices = new Vector3[8];
 
+                        // Read vertices of current cell
                         for (int h = 0; h < 8; h++) 
                         {
                             currentCellVertices[vertexReadOrder[h]] = reader.GetCellVertex();
@@ -62,16 +65,21 @@ namespace Engine
 
                         Vector3[] posData = new Vector3[36];
 
+                        // Assign vertex position data to create the cell
                         for (int h = 0; h < 36; h++) 
                         {
                             posData[h] = currentCellVertices[vertexOrder[h]];
                         }
 
-                        float normalizedCellYPosition = (float)k / (float)_size.z;
+                        // Calculate normalized( in the range [0,1] ) property value
                         float propertyValue = Properties[_currentProperty].Values[i, j, k];
                         float propertyOffset = Properties[_currentProperty].GetOffset();
                         float propertyScaling = Properties[_currentProperty].GetScaling();
-                        _cells[i, j, k] = new Cell(posData, act, _device, normalizedCellYPosition, propertyValue, propertyOffset, propertyScaling);
+
+                        propertyValue -= propertyOffset;
+                        propertyValue /= propertyScaling;
+
+                        _cells[i, j, k] = new Cell(posData, act, _device, propertyValue);
                     }
                 }
             }

@@ -9,10 +9,11 @@ namespace Engine
         static Camera _camera;
         static CursorInfo _cursor;
 
-        public static void Init(XtraForm1 form, Camera cam, CursorInfo cursr)
+        public static void Init(XtraForm1 form, Camera camera, CursorInfo cursor)
         {
-            _camera = cam;
-            _cursor = cursr;
+            _camera = camera;
+            _cursor = cursor;
+
             form.MouseDown += (target, arg) =>
             {
                 ProcessMouseDown(form, arg);
