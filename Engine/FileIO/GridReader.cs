@@ -18,14 +18,17 @@ namespace Engine
             int z = _reader.ReadInt32();
             return new Vector3i(x, y, z);
         }
+
         public void Close()
         {
             _reader.Close();
         }
+
         public bool GetCellStatus()
         {
             return _reader.ReadBoolean();
         }
+
         public Vector3 GetCellVertex()
         {
             float x = _reader.ReadSingle();
@@ -68,20 +71,24 @@ namespace Engine
             }
             return cellVertexCoordinates;
         }
+
         public GridReader(string path)
         {
             _stream = File.Open(path, FileMode.Open);
             _reader = new BinaryReader(_stream, Encoding.UTF8, false);
         }
+
         ~GridReader()
         {
             _stream.Close();
             _reader.Close();
         }
+
         public Vector3 GetGridPosition()
         {
             return ((_mostCorner + _leastCorner) / 2);
         }
+
         public Vector3 GetGridScale()
         {
             return (_mostCorner - _leastCorner);

@@ -106,6 +106,7 @@
             // 
             // simpleButton3
             // 
+            this.simpleButton3.AllowFocus = false;
             this.simpleButton3.Location = new System.Drawing.Point(22, 290);
             this.simpleButton3.Name = "simpleButton3";
             this.simpleButton3.Size = new System.Drawing.Size(53, 36);
@@ -115,6 +116,7 @@
             // 
             // simpleButton1
             // 
+            this.simpleButton1.AllowFocus = false;
             this.simpleButton1.Location = new System.Drawing.Point(229, 290);
             this.simpleButton1.Name = "simpleButton1";
             this.simpleButton1.Size = new System.Drawing.Size(53, 36);
@@ -137,8 +139,9 @@
             this.labelControl2.Name = "labelControl2";
             this.labelControl2.Size = new System.Drawing.Size(210, 176);
             this.labelControl2.TabIndex = 1;
-            this.labelControl2.Text = "Controls: \r\nW - forward\r\nS - backward\r\nA - left\r\nD - right\r\nQ - up\r\nE - down\r\nF -" +
-    " focus/unfocus on grid\r\nRight mouse button - control camera\r\n\r\n\r\n";
+            this.labelControl2.Text = "Controls: \r\nW - forward\r\nS - backward\r\nA - left\r\nD - right\r\nSpace - up\r\nShift - d" +
+    "own\r\nF - focus/unfocus on grid\r\nRight mouse button - control camera\r\n\r\n\r\n";
+            this.labelControl2.Click += new System.EventHandler(this.labelControl2_Click);
             // 
             // labelControl1
             // 
@@ -233,7 +236,6 @@
             this.Controls.Add(this.panelControl1);
             this.KeyPreview = true;
             this.Name = "XtraForm1";
-            this.Text = "dw";
             this.Load += new System.EventHandler(this.XtraForm1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.panelControl1)).EndInit();
             this.panelControl1.ResumeLayout(false);

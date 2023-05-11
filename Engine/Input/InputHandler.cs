@@ -1,13 +1,15 @@
 using GridRender;
+using System;
 using System.Windows.Forms;
 
 namespace Engine
 {
-    public class InputHandler
+    public static class InputHandler
     {
-        Camera _camera;
-        CursorInfo _cursor;
-        public InputHandler(XtraForm1 form,Camera cam, CursorInfo cursr)
+        static Camera _camera;
+        static CursorInfo _cursor;
+
+        public static void Init(XtraForm1 form, Camera cam, CursorInfo cursr)
         {
             _camera = cam;
             _cursor = cursr;
@@ -24,7 +26,8 @@ namespace Engine
                 ProcessKeyDown(arg);
             };
         }
-        public void ProcessMouseDown(XtraForm1 form, MouseEventArgs arg)
+
+        public static void ProcessMouseDown(XtraForm1 form, MouseEventArgs arg)
         {
             if (arg.Button == MouseButtons.Right)
             {
@@ -42,24 +45,26 @@ namespace Engine
                 }
             }
         }
-        public void ProcessKeyUp(KeyEventArgs arg)
+
+        public static void ProcessKeyUp(KeyEventArgs arg)
         {
             if (arg.KeyCode == Keys.W)
                 KeyboardState.KeyUp(Keys.W);
             if (arg.KeyCode == Keys.S)
                 KeyboardState.KeyUp(Keys.S);
-            if (arg.KeyCode == Keys.Q)
-                KeyboardState.KeyUp(Keys.Q);
-            if (arg.KeyCode == Keys.E)
-                KeyboardState.KeyUp(Keys.E);
+            if (arg.KeyCode == Keys.ShiftKey)
+                KeyboardState.KeyUp(Keys.ShiftKey);
+            if (arg.KeyCode == Keys.Space)
+                KeyboardState.KeyUp(Keys.Space);
             if (arg.KeyCode == Keys.A)
                 KeyboardState.KeyUp(Keys.A);
             if (arg.KeyCode == Keys.D)
                 KeyboardState.KeyUp(Keys.D);
         }
-        public void ProcessKeyDown(KeyEventArgs arg)
+
+        public static void ProcessKeyDown(KeyEventArgs arg)
         {
-            if (arg.KeyCode == Keys.F)
+                if (arg.KeyCode == Keys.F)
             {
                 _camera.ChangeFocus();
             }
@@ -67,10 +72,10 @@ namespace Engine
                 KeyboardState.KeyDown(Keys.W);
             if (arg.KeyCode == Keys.S)
                 KeyboardState.KeyDown(Keys.S);
-            if (arg.KeyCode == Keys.Q)
-                KeyboardState.KeyDown(Keys.Q);
-            if (arg.KeyCode == Keys.E)
-                KeyboardState.KeyDown(Keys.E);
+            if (arg.KeyCode == Keys.ShiftKey)
+                KeyboardState.KeyDown(Keys.ShiftKey);
+            if (arg.KeyCode == Keys.Space)
+                KeyboardState.KeyDown(Keys.Space);
             if (arg.KeyCode == Keys.A)
                 KeyboardState.KeyDown(Keys.A);
             if (arg.KeyCode == Keys.D)

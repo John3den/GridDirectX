@@ -26,7 +26,8 @@ PS_IN VS(VS_IN input)
 
 float4 PS(PS_IN input) : SV_Target
 {
-	if ( (abs(input.locPos.x)>0.95f && abs(input.locPos.y)>0.95f) || (abs(input.locPos.x) > 0.95f && abs(input.locPos.z) > 0.95f) || (abs(input.locPos.z) > 0.95f && abs(input.locPos.y) > 0.95f))
+	float epsilon = 0.1f;
+	if ( (abs(input.locPos.x)>1-epsilon && abs(input.locPos.y)> 1 - epsilon) || (abs(input.locPos.x) > 1 - epsilon && abs(input.locPos.z) > 1 - epsilon) || (abs(input.locPos.z) > 1 - epsilon && abs(input.locPos.y) > 1 - epsilon))
 	{
 		float4 c = float4(0,0,0, 1.0f);
 		return c;

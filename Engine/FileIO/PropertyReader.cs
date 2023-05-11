@@ -1,5 +1,6 @@
 using DevExpress.Utils.Extensions;
 using SharpDX;
+using SharpDX.MediaFoundation;
 using System;
 using System.Globalization;
 using System.IO;
@@ -7,33 +8,41 @@ namespace Engine
 {
     public class PropertyReader
     {
-        public PropertyReader(string path, Vector3i dimensions, ref Property[] props, ref int numberOfProperties)
+        string[] _fileLines;
+        int _numberOfProperties;
+        Vector3i _gridDimensions;
+        public PropertyReader(string path, Vector3i dimensions, ref int numberOfProperties)
         {
-            
-            string[] lines = File.ReadAllLines(path);
+            _gridDimensions = dimensions; 
+            _fileLines = File.ReadAllLines(path);
+            numberOfProperties = Convert.ToInt32(_fileLines[0]);
+            _numberOfProperties = numberOfProperties;
+        }
+
+        public Property[] ReadProperties()
+        {
+            Property[] props = new Property[_numberOfProperties];
             int offset = 1;// first two lines
             int valuesRead = 0;
-            numberOfProperties = Convert.ToInt32(lines[0]);
-            props = new Property[numberOfProperties];
-            for (int m = 0; m < numberOfProperties; m++)
+            for (int m = 0; m < _numberOfProperties; m++)
             {
                 string PropertyLabel = "property";
                 float minProp = 0;
                 float maxProp = 0;
                 float[,,] data;
-                data = new float[dimensions.x, dimensions.y, dimensions.z];
-                for (int i = 0; i < dimensions.x; i++)
+                data = new float[_gridDimensions.x, _gridDimensions.y, _gridDimensions.z];
+                for (int i = 0; i < _gridDimensions.x; i++)
                 {
-                    for (int j = 0; j < dimensions.y; j++)
+                    for (int j = 0; j < _gridDimensions.y; j++)
                     {
-                        for (int k = 0; k < dimensions.z; k++)
+                        for (int k = 0; k < _gridDimensions.z; k++)
                         {
-                            if (Char.IsLetter(lines[valuesRead + offset][0]))
+                            if (Char.IsLetter(_fileLines[valuesRead + offset][0]))
                             {
-                                PropertyLabel = lines[valuesRead + offset];
+                                PropertyLabel = _fileLines[valuesRead + offset];
                                 offset++;
                             }
-                            data[i, j, k] = Convert.ToSingle(lines[valuesRead + offset], CultureInfo.InvariantCulture);
+                            data[i, j, k] = Convert.ToSingle(_fileLines[valuesRead + offset], CultureInfo.InvariantCulture);
 
                             if (valuesRead == 0)
                             {
@@ -54,11 +63,9 @@ namespace Engine
                 float propscale = maxProp - minProp;
                 if (propscale == 0) propscale = 1;
                 float propoffset = minProp;
-                props[m] = new Property(dimensions, data, propoffset, propscale,PropertyLabel);
+                props[m] = new Property(_gridDimensions, data, propoffset, propscale, PropertyLabel);
             }
-            
-
+            return props;
         }
-    }
-        
+    }   
 }

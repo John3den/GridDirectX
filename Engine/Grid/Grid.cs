@@ -1,31 +1,38 @@
+using DevExpress.XtraEditors;
 using DevExpress.XtraPrinting.BarCode;
+using GridRender;
 using SharpDX;
 using SharpDX.Direct3D11;
 using System;
 using System.IO;
+using System.Windows.Forms;
 
 namespace Engine
 {
     public class Grid
     {
-        Vector3i _size;
-        Cell[,,] _cells;
-        int _numberOfProperties; 
-        int _currentProperty = 0;
+        public readonly Slider Slider;
+        public Property[] Properties;
+
         public int CurrentProperty
         {
             set
             {
-                if(value < _numberOfProperties && value >=0)
+                if (value < _numberOfProperties && value >= 0)
                 {
                     _currentProperty = value;
                 }
             }
             get { return _currentProperty; }
         }
-        public Property[] _props;
+
+        Vector3i _size;
+        Cell[,,] _cells;
+        int _numberOfProperties; 
+        int _currentProperty = 0;
         string _pathToCells;
         Device _device;
+
         public void GenerateCells()
         {
             GridReader reader = new GridReader(_pathToCells);
@@ -91,7 +98,8 @@ namespace Engine
                         posData[34] = v6;
                         posData[35] = v1;
 
-                        Cell cell = new Cell(posData, act, _device, (float)k / (float)_size.z, _props[_currentProperty]._values[i, j, k], _props[_currentProperty].GetOffset(), _props[_currentProperty].GetScaling());
+                        float normalizedCellYPosition = (float)k / (float)_size.z;
+                        Cell cell = new Cell(posData, act, _device, normalizedCellYPosition, Properties[_currentProperty].Values[i, j, k], Properties[_currentProperty].GetOffset(), Properties[_currentProperty].GetScaling());
                         _cells[i, j, k] = cell;
                     }
                 }
@@ -110,27 +118,52 @@ namespace Engine
             }
             reader.Close();
         }
-        public Grid(Device dev, string path)
+
+        public Grid(Device dev, XtraForm1 form, string path)
         {
             _pathToCells = path;
-            GridReader reader = new GridReader(_pathToCells);
-            _size = reader.GetGridSize();
-            new PropertyReader("../../Resources/grid.binprops.txt", _size, ref _props, ref _numberOfProperties);
+            GridReader gridReader = new GridReader(_pathToCells);
+            _size = gridReader.GetGridSize();
+            PropertyReader propReader = new PropertyReader("../../Resources/grid.binprops.txt", _size, ref _numberOfProperties);
+            Properties = propReader.ReadProperties();
             _device = dev;
-
-            reader.Close();
+            Slider = new Slider(form, this);
+            gridReader.Close();
         }
+
         public Cell GetCell(int x, int y, int z)
         {
             return _cells[x, y, z];
         }
+
         public Vector3i GetSize()
         {
             return _size;
         }
+
         public int GetNumberOfProperties()
         {
             return _numberOfProperties; 
+        }
+
+        public void Update()
+        {
+            Slider.Update();
+        }
+
+        public void ChangeProperty(LabelControl labelControl, bool next)
+        {
+            if (next)
+            {
+                CurrentProperty++;
+                GenerateCells();
+            }
+            else
+            {
+                CurrentProperty--;
+                GenerateCells();
+            }
+            labelControl.Text = Properties[CurrentProperty].Label;
         }
     }
 }

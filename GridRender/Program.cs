@@ -7,7 +7,6 @@ namespace Main
         private static void Main()
         {
             var program = new Engine.RenderLoopControl();
-            program.Run();
         }
     }
 }
