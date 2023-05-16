@@ -11,7 +11,7 @@ namespace Engine
     public class RenderLoopControl
     {
         public static float DeltaTime;
-        public readonly Grid Grid;
+        public readonly Grid GridObject;
 
         CommandList[] _commandLists;
         Stopwatch _clock;
@@ -39,8 +39,7 @@ namespace Engine
             _renderer = new Renderer(_form, _camera);
 
             //Read grid data and initialize grid and its properties
-            Grid = new Grid(_renderer.device, _form, "../../Resources/grid.bin");
-            Grid.GenerateCells();
+            GridObject = new Grid(_renderer.Device, _form, "../../Resources/grid.bin");
 
             _form.StartPosition = FormStartPosition.CenterScreen;
 
@@ -66,7 +65,7 @@ namespace Engine
                 }
 
                 _camera.Update();
-                Grid.Update();
+                GridObject.Update();
 
                 //Display text
                 fpsCounter++;
@@ -80,17 +79,17 @@ namespace Engine
                 }
 
                 _renderer.SetupPipeline();
-                _renderer.RenderDeferred(Renderer.THREAD_COUNT, _commandLists, Grid);
+                _renderer.RenderDeferred(Renderer.THREAD_COUNT, _commandLists, GridObject);
 
                 //Execute command list and dispose
                 for (int i = 0; i < Renderer.THREAD_COUNT; i++)
                 {
                     var commandList = _commandLists[i];
-                    _renderer.imm.ExecuteCommandList(commandList, false);
+                    _renderer.Immediate.ExecuteCommandList(commandList, false);
                     commandList.Dispose();
                     _commandLists[i] = null;
                 }
-                _renderer.swapChain.Present(0, PresentFlags.None);
+                _renderer.SwapChain.Present(0, PresentFlags.None);
             });
         }
     }

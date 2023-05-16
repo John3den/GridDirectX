@@ -22,8 +22,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)fileio\PropertyReader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)fileio\VertexReader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)grid\Cell.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)grid\CellGeometry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)grid\Grid.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)grid\Property.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)grid\GridGeometry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)grid\PropertyArray.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)input\InputHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)input\KeyboardState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)math\Vector3i.cs" />

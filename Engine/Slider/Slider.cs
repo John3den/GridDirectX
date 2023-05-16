@@ -23,7 +23,7 @@ namespace Engine
         CheckBox _CheckZ;
         CheckBox _CheckFull;
 
-        public Slider(XtraForm1 form,Grid grid)
+        public Slider(XtraForm1 form)
         {
             _scrollX = form.GetTrackBar1();
             _scrollY = form.GetTrackBar2();
@@ -33,9 +33,9 @@ namespace Engine
             _CheckZ = form.GetCheck3();
             _CheckFull = form.GetFullCheck();
 
-            _scrollX.Properties.Maximum = grid.GetSize().x - 1;
-            _scrollY.Properties.Maximum = grid.GetSize().y - 1;
-            _scrollZ.Properties.Maximum = grid.GetSize().z - 1;
+            _scrollX.Properties.Maximum = Grid.Size.x - 1;
+            _scrollY.Properties.Maximum = Grid.Size.y - 1;
+            _scrollZ.Properties.Maximum = Grid.Size.z - 1;
         }
 
         public bool IncludesCell(int x, int y, int z)

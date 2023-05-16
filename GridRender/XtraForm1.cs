@@ -67,12 +67,12 @@ namespace GridRender
 
         private void simpleButton1_Click(object sender, EventArgs e)
         {
-            loopControl.Grid.ChangeProperty(labelControl3, true);
+            loopControl.GridObject.ChangeProperty(labelControl3, true);
         }
 
         private void simpleButton3_Click(object sender, EventArgs e)
         {
-            loopControl.Grid.ChangeProperty(labelControl3, false);
+            loopControl.GridObject.ChangeProperty(labelControl3, false);
         }
         private void labelControl3_Click(object sender, EventArgs e)
         {

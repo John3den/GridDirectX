@@ -9,7 +9,7 @@ namespace Engine
     {
         Stream _stream;
         BinaryReader _reader;
-        Vector3 _mostCorner;
+        Vector3 _mostCorner;    
         Vector3 _leastCorner;
         bool _readFirstVertex = false;
 
@@ -55,6 +55,7 @@ namespace Engine
                 _mostCorner.Z = Math.Max(_mostCorner.Z, z);
                 _leastCorner.Z = Math.Min(_leastCorner.Z, z);
             }
+
             return cellVertexCoordinates;
         }
 

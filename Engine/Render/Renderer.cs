@@ -16,26 +16,35 @@ namespace Engine
     {
 
         public const int THREAD_COUNT = 4;
+
         Camera _camera;
-        XtraForm1 targetForm;
-        DeviceContext[] contextPerThread;
-        DeviceContext[] deferredContexts;
-        Buffer dynamicConstantBuffer;
-        Buffer staticContantBuffer;
-        Matrix view;
-        Matrix proj;
-        VertexShader vertexShader;
-        PixelShader pixelShader;
-        RenderTargetView renderView;
-        DepthStencilView depthView;
-        InputLayout layout;
-        public readonly Device device;
-        public readonly SwapChain swapChain;
-        public DeviceContext imm;
+        XtraForm1 _targetForm;
+        DeviceContext[] _contextPerThread;
+        DeviceContext[] _deferredContexts;
+        Buffer _dynamicConstantBuffer;
+
+        Matrix _view;
+        Matrix _proj;
+        Matrix _world;
+        Matrix _worldViewProj;
+
+        VertexShader _vertexShader;
+        PixelShader _pixelShader;
+        RenderTargetView _renderView;
+        DepthStencilView _depthView;
+        InputLayout _layout;
+
+        public readonly Device Device;
+        public readonly SwapChain SwapChain;
+
+        public DeviceContext Immediate;
+
         public Renderer(XtraForm1 form, Camera cam)
         {
             _camera = cam;
-            targetForm = form;
+            _targetForm = form;
+
+            _world = Matrix.Scaling(1.0f / 3f);
 
             var desc = new SwapChainDescription()
             {
@@ -51,42 +60,43 @@ namespace Engine
             };
 
             // Create Device and SwapChain 
-            Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.None, desc, out device, out swapChain);
-            imm = device.ImmediateContext;
+            Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.None, desc, out Device, out SwapChain);
+            Immediate = Device.ImmediateContext;
 
             //generate contexts
             GenerateContexts();
 
             //create backbubuffer and renderview
-            var factory = swapChain.GetParent<Factory>();
+            var factory = SwapChain.GetParent<Factory>();
             factory.MakeWindowAssociation(form.Handle, WindowAssociationFlags.IgnoreAll);
 
-            var backBuffer = Texture2D.FromSwapChain<Texture2D>(swapChain, 0);
-            renderView = new RenderTargetView(device, backBuffer);
+            var backBuffer = Texture2D.FromSwapChain<Texture2D>(SwapChain, 0);
+            _renderView = new RenderTargetView(Device, backBuffer);
 
             LoadShaders();
 
-            proj = Matrix.PerspectiveFovLH((float)Math.PI / 4.0f, form.ClientSize.Width / (float)form.ClientSize.Height, 0.1f, 100.0f);
+            _proj = Matrix.PerspectiveFovLH((float)Math.PI / 4.0f, form.ClientSize.Width / (float)form.ClientSize.Height, 0.1f, 100.0f)
+                    * Matrix.Translation(-0.2f, 0, 0)
+                    * Matrix.RotationZ((float)Math.PI);
 
             SetupBuffers(form);
         }
 
         public void GenerateContexts() 
         {
-            deferredContexts = new DeviceContext[THREAD_COUNT];
-            for (int i = 0; i < deferredContexts.Length; i++)
-                deferredContexts[i] = new DeviceContext(device);
+            _deferredContexts = new DeviceContext[THREAD_COUNT];
+            for (int i = 0; i < _deferredContexts.Length; i++)
+                _deferredContexts[i] = new DeviceContext(Device);
 
-            contextPerThread = new DeviceContext[Renderer.THREAD_COUNT];
-            contextPerThread[0] = imm;
+            _contextPerThread = new DeviceContext[Renderer.THREAD_COUNT];
+            _contextPerThread[0] = Immediate;
         }
 
         public void SetupBuffers(XtraForm1 form)
         {
-            staticContantBuffer = new Buffer(device, Utilities.SizeOf<Matrix>(), ResourceUsage.Default, BindFlags.ConstantBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
-            dynamicConstantBuffer = new Buffer(device, Utilities.SizeOf<Matrix>(), ResourceUsage.Dynamic, BindFlags.ConstantBuffer, CpuAccessFlags.Write, ResourceOptionFlags.None, 0);
+            _dynamicConstantBuffer = new Buffer(Device, Utilities.SizeOf<Matrix>(), ResourceUsage.Dynamic, BindFlags.ConstantBuffer, CpuAccessFlags.Write, ResourceOptionFlags.None, 0);
 
-            var depthBuffer = new Texture2D(device, new Texture2DDescription()
+            var depthBuffer = new Texture2D(Device, new Texture2DDescription()
             {
                 Format = Format.D32_Float_S8X24_UInt,
                 ArraySize = 1,
@@ -100,16 +110,16 @@ namespace Engine
                 OptionFlags = ResourceOptionFlags.None
             });
 
-            depthView = new DepthStencilView(device, depthBuffer);
+            _depthView = new DepthStencilView(Device, depthBuffer);
         }
 
         public void LoadShaders()
         {
             //Create vertex shader
             var bytecode = ShaderBytecode.CompileFromFile("../../Resources/MultiCube.fx", "VS", "vs_4_0");
-            vertexShader = new VertexShader(device, bytecode);
+            _vertexShader = new VertexShader(Device, bytecode);
 
-            layout = new InputLayout(device, ShaderSignature.GetInputSignature(bytecode), new[]
+            _layout = new InputLayout(Device, ShaderSignature.GetInputSignature(bytecode), new[]
 {
                         new InputElement("POSITION", 0, Format.R32G32B32A32_Float, 0, 0),
                         new InputElement("COLOR", 0, Format.R32G32B32A32_Float, 16, 0),
@@ -119,29 +129,33 @@ namespace Engine
             //Create pixel shader
             bytecode.Dispose();
             bytecode = ShaderBytecode.CompileFromFile("../../Resources/MultiCube.fx", "PS", "ps_4_0");
-            pixelShader = new PixelShader(device, bytecode);
+            _pixelShader = new PixelShader(Device, bytecode);
             bytecode.Dispose();
         }
 
         public void SetupPipeline()
         {
-            Array.Copy(deferredContexts, contextPerThread, contextPerThread.Length);
+            Array.Copy(_deferredContexts, _contextPerThread, _contextPerThread.Length);
             for (int i = 0; i < THREAD_COUNT; i++)
             {
-                var renderingContext = contextPerThread[i];
-                renderingContext.InputAssembler.InputLayout = layout;
+                var renderingContext = _contextPerThread[i];
+                renderingContext.InputAssembler.InputLayout = _layout;
                 renderingContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
-                renderingContext.VertexShader.SetConstantBuffer(0, dynamicConstantBuffer);
-                renderingContext.VertexShader.Set(vertexShader);
-                renderingContext.Rasterizer.SetViewport(0, 0, targetForm.ClientSize.Width, targetForm.ClientSize.Height);
-                renderingContext.PixelShader.Set(pixelShader);
-                renderingContext.OutputMerger.SetTargets(depthView, renderView);
+                renderingContext.VertexShader.SetConstantBuffer(0, _dynamicConstantBuffer);
+                renderingContext.VertexShader.Set(_vertexShader);
+                renderingContext.Rasterizer.SetViewport(0, 0, _targetForm.ClientSize.Width, _targetForm.ClientSize.Height);
+                renderingContext.PixelShader.Set(_pixelShader);
+                renderingContext.OutputMerger.SetTargets(_depthView, _renderView);
             }
         }
 
         public void RenderDeferred(int threadCount,CommandList[] commandLists, Grid grid)
         {
-            int deltaCube = grid.GetSize().y / threadCount;
+            _view = _camera.GetView();
+            _worldViewProj = _world * _view * _proj;
+            _worldViewProj.Transpose();
+
+            int deltaCube = Grid.Size.y / threadCount;
             if (deltaCube == 0) deltaCube = 1;
             int nextStartingRow = 0;
             var tasks = new Task[threadCount];
@@ -149,9 +163,9 @@ namespace Engine
             {
                 var threadIndex = i;
                 int fromRow = nextStartingRow;
-                int toRow = (i + 1) == threadCount ? grid.GetSize().y : fromRow + deltaCube;
-                if (toRow > grid.GetSize().y)
-                    toRow = grid.GetSize().y;
+                int toRow = (i + 1) == threadCount ? Grid.Size.y : fromRow + deltaCube;
+                if (toRow > Grid.Size.y)
+                    toRow = Grid.Size.y;
                 nextStartingRow = toRow;
 
                 tasks[i] = new Task(() => RenderLayer(threadIndex, fromRow, toRow, commandLists, grid));
@@ -171,34 +185,22 @@ namespace Engine
 
         void RenderLayer(int contextIndex, int fromY, int toY, CommandList[] commandLists, Grid grid)
         {
-            var renderingContext = contextPerThread[contextIndex];
+            var renderingContext = _contextPerThread[contextIndex];
             if (contextIndex == 0)
             {
-                contextPerThread[0].ClearDepthStencilView(depthView, DepthStencilClearFlags.Depth, 1.0f, 0);
-                contextPerThread[0].ClearRenderTargetView(renderView, Color.White);
+                _contextPerThread[0].ClearDepthStencilView(_depthView, DepthStencilClearFlags.Depth, 1.0f, 0);
+                _contextPerThread[0].ClearRenderTargetView(_renderView, Color.White);
             }
-
-            var rotateMatrix = Matrix.Scaling(1.0f / 3f);
-            Matrix worldViewProj;
-            view = _camera.GetView();
-
-            var viewProj = Matrix.Multiply(view, proj);
-            worldViewProj = rotateMatrix * viewProj;
-            worldViewProj *= Matrix.Translation(-0.2f, 0, 0);
-            worldViewProj *= Matrix.RotationZ((float)Math.PI);
-            worldViewProj.Transpose();
-
-            Vector3i gridSize = grid.GetSize();
 
             for (int y = fromY; y < toY; y++)
             {
-                for (int x = 0; x < gridSize.x; x++)
+                for (int x = 0; x < Grid.Size.x; x++)
                 {
-                    for (int z = 0; z < gridSize.z; z++)
+                    for (int z = 0; z < Grid.Size.z; z++)
                     {
                         if (grid.Slider.IncludesCell(x, y, z))
                         {
-                            DrawCell(renderingContext, dynamicConstantBuffer, worldViewProj, grid.GetCell(x, y, z).getVert());
+                            DrawCell(renderingContext, _dynamicConstantBuffer, _worldViewProj, grid.GetCell(x, y, z).getVert());
                         }
                     }
                 }

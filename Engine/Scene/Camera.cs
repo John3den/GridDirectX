@@ -19,16 +19,23 @@ namespace Engine
 
         public Camera()
         {
-            float YawSine = (float)Math.Sin(_yaw);
-            float shiftedPitchSine = (float)Math.Sin(_pitch + Math.PI / 2);
-            float PitchSine = (float)Math.Sin(_pitch);
-            float shiftedPitchCosine = (float)Math.Cos(_pitch + Math.PI / 2);
-            float PitchCosine = (float)Math.Cos(_pitch);
-            _lookDirection = new Vector3(YawSine * PitchSine, PitchCosine, YawSine * PitchSine);
-            _upDirection = new Vector3(YawSine * shiftedPitchSine, shiftedPitchCosine, YawSine * shiftedPitchSine);
+            UpdateDirections();
+      
             _view = Matrix.LookAtLH(_position, _position + _lookDirection, _upDirection);
             _position = new Vector3(0, 0, -3);
             _leftDirection = Vector3.Cross(_lookDirection, Vector3.Up);
+        }
+
+        private void UpdateDirections()
+        {
+            float YawSine = (float)Math.Sin(_yaw);
+            float PitchCosine = (float)Math.Cos(_pitch);
+            float PitchSine = (float)Math.Sin(_pitch);
+            float shiftedPitchSine = (float)Math.Sin(_pitch + Math.PI / 2);
+            float shiftedPitchCosine = (float)Math.Cos(_pitch + Math.PI / 2);
+
+            _upDirection = new Vector3(YawSine * shiftedPitchSine, shiftedPitchCosine, YawSine * shiftedPitchSine);
+            _lookDirection = new Vector3(YawSine * PitchSine, PitchCosine, YawSine * PitchSine);
         }
 
         public void Update()

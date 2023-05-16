@@ -8,22 +8,21 @@ namespace Engine
     {
         string[] _fileLines;
         int _numberOfProperties;
-        Vector3i _gridDimensions;
 
-        public PropertyReader(string path, Vector3i dimensions, ref int numberOfProperties)
+        public PropertyReader(string path, ref int numberOfProperties)
         {
-            _gridDimensions = dimensions; 
             _fileLines = File.ReadAllLines(path);
             numberOfProperties = Convert.ToInt32(_fileLines[0]);
             _numberOfProperties = numberOfProperties;
         }
 
-        public Property[] ReadProperties()
+        public PropertyArray[] ReadProperties()
         {
-            Property[] props = new Property[_numberOfProperties];
+            PropertyArray[] props = new PropertyArray[_numberOfProperties];
 
             // First line and names of properties
             int offset = 1; 
+
             int valuesRead = 0;
 
             for (int m = 0; m < _numberOfProperties; m++)
@@ -33,13 +32,13 @@ namespace Engine
                 float minProp = 0;
                 float maxProp = 0;
 
-                float[,,] data = new float[_gridDimensions.x, _gridDimensions.y, _gridDimensions.z];
+                float[,,] data = new float[Grid.Size.x, Grid.Size.y, Grid.Size.z];
 
-                for (int i = 0; i < _gridDimensions.x; i++)
+                for (int i = 0; i < Grid.Size.x; i++)
                 {
-                    for (int j = 0; j < _gridDimensions.y; j++)
+                    for (int j = 0; j < Grid.Size.y; j++)
                     {
-                        for (int k = 0; k < _gridDimensions.z; k++)
+                        for (int k = 0; k < Grid.Size.z; k++)
                         {
                             if (Char.IsLetter(_fileLines[valuesRead + offset][0]))
                             {
@@ -70,7 +69,7 @@ namespace Engine
 
                 float propOffset = minProp;
 
-                props[m] = new Property(_gridDimensions, data, propOffset, propScale, PropertyLabel);
+                props[m] = new PropertyArray(Grid.Size, data, propOffset, propScale, PropertyLabel);
             }
             return props;
         }
