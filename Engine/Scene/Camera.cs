@@ -82,6 +82,7 @@ namespace Engine
         {
             Vector3 normal = Vector3.Normalize(-_position);
             _pitch = (float) (Math.Acos(normal.Y)  );
+
             if(normal.Z>0)
                 _yaw =  (float)Math.Atan(normal.X/ normal.Z);
             else
@@ -101,8 +102,10 @@ namespace Engine
         {
             float pitchShift = rotationVector.X;
             float yawShift = rotationVector.Y;
+
             _pitch += pitchShift;
             _yaw += yawShift;
+
             if (_pitch < 0)
             {
                 _pitch = 0.0001f;

@@ -8,7 +8,7 @@ namespace Engine
         static Camera _camera;
         static CursorInfo _cursor;
 
-        public static void Init(XtraForm1 form, Camera camera, CursorInfo cursor)
+        public static void Initialize(XtraForm1 form, Camera camera, CursorInfo cursor)
         {
             _camera = camera;
             _cursor = cursor;

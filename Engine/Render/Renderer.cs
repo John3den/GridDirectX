@@ -9,6 +9,8 @@ using SharpDX.Direct3D;
 using SharpDX.D3DCompiler;
 using SharpDX.DXGI;
 using Device = SharpDX.Direct3D11.Device;
+using DevExpress.Utils.StructuredStorage.Internal.Writer;
+using System.Windows.Forms;
 
 namespace Engine
 {
@@ -25,7 +27,7 @@ namespace Engine
 
         Matrix _view;
         Matrix _proj;
-        Matrix _world;
+        Matrix _world = Matrix.Scaling(1.0f / 3f);
         Matrix _worldViewProj;
 
         VertexShader _vertexShader;
@@ -44,32 +46,15 @@ namespace Engine
             _camera = cam;
             _targetForm = form;
 
-            _world = Matrix.Scaling(1.0f / 3f);
-
-            var desc = new SwapChainDescription()
-            {
-                BufferCount = 2,
-                ModeDescription =
-                new ModeDescription(form.ClientSize.Width, form.ClientSize.Height,
-                new Rational(60, 1), Format.R8G8B8A8_UNorm),
-                IsWindowed = true,
-                OutputHandle = form.Handle,
-                SampleDescription = new SampleDescription(1, 0),
-                SwapEffect = SwapEffect.Discard,
-                Usage = Usage.RenderTargetOutput
-            };
+            var desc = CreateSwapChainDescription(form);
 
             // Create Device and SwapChain 
             Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.None, desc, out Device, out SwapChain);
             Immediate = Device.ImmediateContext;
 
-            //generate contexts
             GenerateContexts();
 
             //create backbubuffer and renderview
-            var factory = SwapChain.GetParent<Factory>();
-            factory.MakeWindowAssociation(form.Handle, WindowAssociationFlags.IgnoreAll);
-
             var backBuffer = Texture2D.FromSwapChain<Texture2D>(SwapChain, 0);
             _renderView = new RenderTargetView(Device, backBuffer);
 
@@ -82,7 +67,23 @@ namespace Engine
             SetupBuffers(form);
         }
 
-        public void GenerateContexts() 
+        private SwapChainDescription CreateSwapChainDescription(XtraForm1 form)
+        {
+            return new SwapChainDescription()
+            {
+                BufferCount = 2,
+                ModeDescription =
+                new ModeDescription(form.ClientSize.Width, form.ClientSize.Height,
+                new Rational(60, 1), Format.R8G8B8A8_UNorm),
+                IsWindowed = true,
+                OutputHandle = form.Handle,
+                SampleDescription = new SampleDescription(1, 0),
+                SwapEffect = SwapEffect.Discard,
+                Usage = Usage.RenderTargetOutput
+            };
+    }
+
+        private void GenerateContexts() 
         {
             _deferredContexts = new DeviceContext[THREAD_COUNT];
             for (int i = 0; i < _deferredContexts.Length; i++)
@@ -90,6 +91,11 @@ namespace Engine
 
             _contextPerThread = new DeviceContext[Renderer.THREAD_COUNT];
             _contextPerThread[0] = Immediate;
+        }
+
+        private void CreateDevice()
+        {
+
         }
 
         public void SetupBuffers(XtraForm1 form)
@@ -149,21 +155,29 @@ namespace Engine
             }
         }
 
-        public void RenderDeferred(int threadCount,CommandList[] commandLists, Grid grid)
+        private void UpdateWorldViewProj()
         {
             _view = _camera.GetView();
             _worldViewProj = _world * _view * _proj;
             _worldViewProj.Transpose();
+        }
 
-            int deltaCube = Grid.Size.y / threadCount;
-            if (deltaCube == 0) deltaCube = 1;
+        public void RenderDeferred(int threadCount,CommandList[] commandLists, Grid grid)
+        {
+            UpdateWorldViewProj();
+
+            int delta = Grid.Size.y / threadCount;
+            if (delta == 0) delta = 1;
+
             int nextStartingRow = 0;
             var tasks = new Task[threadCount];
+
+            // Assign threads to layers for rendering
             for (int i = 0; i < threadCount; i++)
             {
                 var threadIndex = i;
                 int fromRow = nextStartingRow;
-                int toRow = (i + 1) == threadCount ? Grid.Size.y : fromRow + deltaCube;
+                int toRow = (i + 1) == threadCount ? Grid.Size.y : fromRow + delta;
                 if (toRow > Grid.Size.y)
                     toRow = Grid.Size.y;
                 nextStartingRow = toRow;
@@ -171,6 +185,7 @@ namespace Engine
                 tasks[i] = new Task(() => RenderLayer(threadIndex, fromRow, toRow, commandLists, grid));
                 tasks[i].Start();
             }
+
             Task.WaitAll(tasks);
         }
 
